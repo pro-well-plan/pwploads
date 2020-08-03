@@ -118,3 +118,39 @@ def stimulation(tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid, g, tvd_p
 
     return pressure_differential
 
+
+def fluid_storage_onefluid_behindcasing(tvd, tvd_frac, rho_fluid, frac_gradient, rho_mud, g):
+    from .pressure_internal import frac_shoe_gas_grad_above
+    from .pressure_external import onefluid_behindcasing
+
+    p_int = frac_shoe_gas_grad_above(tvd, frac_gradient, tvd_frac, rho_fluid, g)
+    p_ext = onefluid_behindcasing(tvd, rho_mud, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
+
+def fluid_storage_morefluids_behindcasing(tvd, tvd_frac, frac_gradient, rho_fluid, tvd_fluid, g):
+    from .pressure_internal import frac_shoe_gas_grad_above
+    from .pressure_external import morefluids_behindcasing
+
+    p_int = frac_shoe_gas_grad_above(tvd, frac_gradient, tvd_frac, rho_fluid, g)
+    p_ext = morefluids_behindcasing(tvd, rho_fluid, tvd_fluid, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
+
+def fluid_storage_depletedzone(tvd, tvd_frac, frac_gradient, rho_fluid, tvd_zone, p_zone, rho_mud, g):
+    from .pressure_internal import frac_shoe_gas_grad_above
+    from .pressure_external import depleted_zone
+
+    p_int = frac_shoe_gas_grad_above(tvd, frac_gradient, tvd_frac, rho_fluid, g)
+    p_ext = depleted_zone(tvd, tvd_zone, p_zone, rho_mud, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
