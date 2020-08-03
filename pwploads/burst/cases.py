@@ -81,3 +81,40 @@ def production_with_packer_and_depletedzone(tvd, rho_fluid, rho_mud, p_res, tvd_
     pressure_differential = p_int - p_ext
 
     return pressure_differential
+
+
+def production_without_packer(tvd, p_res, rho_gas, tvd_res, rho_mud, g):
+    from .pressure_internal import displacement_to_gas
+    from .pressure_external import onefluid_behindcasing
+
+    p_int = displacement_to_gas(tvd, p_res, rho_gas, tvd_res, g)
+    p_ext = onefluid_behindcasing(tvd, rho_mud, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
+
+def production_without_packer_and_depletedzone(tvd, p_res, rho_gas, tvd_res, tvd_zone, p_zone, rho_mud, g):
+    from .pressure_internal import displacement_to_gas
+    from .pressure_external import depleted_zone
+
+    p_int = displacement_to_gas(tvd, p_res, rho_gas, tvd_res, g)
+    p_ext = depleted_zone(tvd, tvd_zone, p_zone, rho_mud, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
+
+def stimulation(tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid, g, tvd_packer=0):
+    from .pressure_internal import tubing_leak_stimulation
+    from .pressure_external import onefluid_behindcasing
+
+    p_int = tubing_leak_stimulation(tvd, whp, rho_packerfluid, rho_injectionfluid, g, tvd_packer)
+    p_ext = onefluid_behindcasing(tvd, rho_mud, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
