@@ -1,4 +1,4 @@
-def fraction_of_bhp_at_wh(tvd, rho_mud, tvd_next_section, fraction=0.5, g):
+def fraction_of_bhp_at_wh(tvd, rho_mud, tvd_next_section, g, fraction=0.5):
     bhp = g * rho_mud * tvd_next_section
     p_int = [fraction * bhp] * len(tvd)
 
@@ -14,6 +14,7 @@ def frac_shoe_gas_grad_above(tvd, frac_gradient, tvd_frac, rho_fluid, g):
 
 def gas_kick(tvd, rho_mud, kick_intensity, tvd_kick, vol_kick_initial, rho_kick_initial, id_csg, od_dp, g):
     from math import pi
+    from numpy import array
 
     bhp = g * (rho_mud + kick_intensity) * tvd_kick
 
@@ -27,7 +28,7 @@ def gas_kick(tvd, rho_mud, kick_intensity, tvd_kick, vol_kick_initial, rho_kick_
     ir_csg = (id_csg / 2) / 12
     or_dp = (od_dp / 2) / 12
     h = [x / (pi * (ir_csg ** 2 - or_dp ** 2)) for x in vol_kick]
-    tvd_topkick = np.array([x - y for x, y in zip(tvd, h)])
+    tvd_topkick = array([x - y for x, y in zip(tvd, h)])
     tvd_topkick[tvd_topkick < 0] = 0
 
     p_topkick = [a - g * b * (c - d) for a, b, c, d in zip(p_basekick, rho_kick, tvd, tvd_topkick) if d >= 0]
@@ -60,7 +61,7 @@ def tubing_leak(tvd, p_res, rho_fluid, tvd_perf, rho_packerfluid, tvd_packer, rh
     return p_int
 
 
-def tubing_leak_stimulation(tvd, whp, rho_packerfluid, rho_injectionfluid, tvd_packer=0):
+def tubing_leak_stimulation(tvd, whp, rho_packerfluid, rho_injectionfluid, g, tvd_packer=0):
     p_int = [whp + g * rho_packerfluid * x for x in tvd if x <= tvd_packer] + \
             [whp + g * rho_injectionfluid * x for x in tvd if x > tvd_packer]
 
