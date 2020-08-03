@@ -32,3 +32,52 @@ def drilling_influx_3(tvd, rho_mud, id_csg, od_dp, tvd_kick, kick_intensity, rho
     pressure_differential = p_int - p_ext
 
     return pressure_differential
+
+
+def pressure_test_onefluid(tvd, p_test, rho_mud, g):
+    from .pressure_internal import pressure_test
+    from .pressure_external import onefluid_behindcasing
+
+    p_int = pressure_test(tvd, p_test, rho_mud, g)
+    p_ext = onefluid_behindcasing(tvd, rho_mud, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
+
+def pressure_test_morefluids(tvd, p_test, rho_mud, rho_fluid, tvd_fluid, g):
+    from .pressure_internal import pressure_test
+    from .pressure_external import morefluids_behindcasing
+
+    p_int = pressure_test(tvd, p_test, rho_mud, g)
+    p_ext = morefluids_behindcasing(tvd, rho_fluid, tvd_fluid, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
+
+def production_with_packer(tvd, rho_fluid, rho_mud, p_res, tvd_perf, rho_packerfluid, tvd_packer, g):
+    from .pressure_internal import tubing_leak
+    from .pressure_external import onefluid_behindcasing
+
+    p_int = tubing_leak(tvd, p_res, rho_fluid, tvd_perf, rho_packerfluid, tvd_packer, rho_mud, g)
+    p_ext = onefluid_behindcasing(tvd, rho_mud, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
+
+def production_with_packer_and_depletedzone(tvd, rho_fluid, rho_mud, p_res, tvd_perf, rho_packerfluid, tvd_packer, g,
+                                            tvd_zone, p_zone):
+    from .pressure_internal import tubing_leak
+    from .pressure_external import depleted_zone
+
+    p_int = tubing_leak(tvd, p_res, rho_fluid, tvd_perf, rho_packerfluid, tvd_packer, rho_mud, g)
+    p_ext = depleted_zone(tvd, tvd_zone, p_zone, rho_mud, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
