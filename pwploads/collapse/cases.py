@@ -34,4 +34,27 @@ def plug_cementation_morefluids_behindcasing(tvd, rho_fluid, tvd_fluid, g):
     return pressure_differential
 
 
+def drill_stem_test_partialevacuation(tvd, rho_mud, tvd_zone, p_zone, g):
+    from .pressure_internal import partial_evacuation
+    from .pressure_external import onefluid_behindcasing
+
+    p_int = partial_evacuation(tvd, rho_mud, tvd_zone, p_zone, g)
+    p_ext = onefluid_behindcasing(tvd, rho_mud, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
+
+def drill_stem_test_fullevacuation(tvd, rho_mud, g):
+    from .pressure_internal import full_evacuation
+    from .pressure_external import onefluid_behindcasing
+
+    p_int = full_evacuation(tvd)
+    p_ext = onefluid_behindcasing(tvd, rho_mud, g)
+
+    pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
 
