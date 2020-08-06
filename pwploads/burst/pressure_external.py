@@ -22,9 +22,7 @@ def morefluids_behindcasing(tvd, rho_fluid, tvd_fluid, g):
             tvd_fluid_prev = tvd_fluid_selected
             tvd_fluid_selected = next(tvd_fluid)
             rho_fluid_selected = next(rho_fluid)
-            print(tvd_fluid_selected, rho_fluid_selected)
             p_prev = p
-            print(p_prev)
         p_ext.append(p)
 
     return p_ext
