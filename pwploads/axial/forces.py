@@ -63,6 +63,16 @@ def ballooning(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_
     return f_bl
 
 
+def shock_load(v_avg, od_csg, id_csg, rho_csg, e, a=1.5):
+    from math import pi
+
+    area = (pi / 4) * (od_csg ** 2 - id_csg * 2)
+
+    f_sh = a * v_avg * area * (e * rho_csg) ** 0.5
+
+    return f_sh
+
+
 def pressure_profile(tvd, tvd_fluid, rho_fluid, g):
     tvd_fluid.append(tvd[-1])
 
