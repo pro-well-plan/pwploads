@@ -8,7 +8,7 @@ def running(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, t
     # f_d --> drag
     # f_be --> bending
 
-    force = [x1 - x2 + x3 for x1 ,x2, x3 in zip(f_w, f_bu, f_sh)]
+    force = [x1 - x2 + x3 for x1, x2, x3 in zip(f_w, f_bu, f_sh)]
     # - f_d + f_be
 
     return force
@@ -58,3 +58,27 @@ def green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_e
     return force
 
 
+def production(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, poisson=0.3, f_setting=0):
+    from .forces import ballooning
+
+    f_bl = ballooning(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, poisson)
+    # f_be --> bending
+
+    force = [f_setting + x for x in f_bl]
+    # + f_be
+
+    return force
+
+
+def injection(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k, t_o, alpha,
+              poisson=0.3, f_setting=0):
+    from .forces import ballooning, thermal_load
+
+    f_bl = ballooning(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, poisson)
+    f_th = thermal_load(od_csg, id_csg, t_k, t_o, alpha, e)
+    # f_be --> bending
+
+    force = [f_setting + x1 + x2 for x1, x2 in zip(f_bl, f_th)]
+    # + f_be
+
+    return force
