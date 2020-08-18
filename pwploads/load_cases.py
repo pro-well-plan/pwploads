@@ -30,6 +30,7 @@ def green_cement_pressure_test(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ex
 
     axial_force = axial.green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,
                                      rho_fluid_int, g, f_pre, f_h)
+
     if (type(rho_fluid) == list) and (type(tvd_fluid) == list):
         pressure_differential = burst.pressure_test_morefluids(tvd, p_test, rho_mud, rho_fluid, tvd_fluid, g)
     else:
@@ -129,3 +130,45 @@ def fluid_storage_depleted_zone(md, md_toc, od_csg, id_csg, delta_rho_i, delta_r
 
     return axial_force, pressure_differential
 
+
+# BURST CASES
+
+def drilling_losses(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k, t_o, alpha,
+                    tvd, rho_mud, tvd_zone, g, p_zone, poisson=0.3, f_setting=0):
+
+    axial_force = axial.injection(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k,
+                                  t_o, alpha, poisson, f_setting)
+
+    pressure_differential = collapse.drilling_losses(tvd, rho_mud, tvd_zone, p_zone, g)
+
+    return axial_force, pressure_differential
+
+
+def plug_cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int, g,
+                     rho_mud, f_pre=0, rho_fluid=None, tvd_fluid=None):
+
+    axial_force = axial.cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,
+                                    rho_fluid_int, g, f_pre)
+
+    if (type(rho_fluid) == list) and (type(tvd_fluid) == list):
+        pressure_differential = collapse.plug_cementation_morefluids_behindcasing(tvd, rho_fluid, tvd_fluid, g)
+
+    else:
+        pressure_differential = collapse.plug_cementation_onefluid_behindcasing(tvd, rho_fluid, rho_mud, g)
+
+    return axial_force, pressure_differential
+
+
+def drill_stem_test(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, tvd, rho_mud, g,
+                    tvd_zone, p_zone, poisson=0.3, f_setting=0, evacuation="full"):
+
+    axial_force = axial.production(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
+                                   poisson, f_setting)
+
+    if evacuation == "full":
+        pressure_differential = collapse.drill_stem_test_fullevacuation(tvd, rho_mud, g)
+
+    if evacuation == "partial":
+        pressure_differential = collapse.drill_stem_test_partialevacuation(tvd, rho_mud, tvd_zone, p_zone, g)
+
+    return axial_force, pressure_differential
