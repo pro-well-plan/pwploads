@@ -165,10 +165,44 @@ def drill_stem_test(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, del
     axial_force = axial.production(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
                                    poisson, f_setting)
 
+    pressure_differential = [0] * len(axial_force)
+
     if evacuation == "full":
         pressure_differential = collapse.drill_stem_test_fullevacuation(tvd, rho_mud, g)
 
     if evacuation == "partial":
         pressure_differential = collapse.drill_stem_test_partialevacuation(tvd, rho_mud, tvd_zone, p_zone, g)
+
+    return axial_force, pressure_differential
+
+
+def production_evacuation(tvd, rho_mud, g, md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
+                          poisson=0.3, f_setting=0):
+
+    axial_force = axial.production(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
+                                   poisson, f_setting)
+
+    pressure_differential = collapse.production_fullevacuation(tvd, rho_mud, g)
+
+    return axial_force, pressure_differential
+
+
+def injection_evacuation(tvd, tvd_perf, rho_inj, p_inj, tvd_influencedzone, rho_fluid, p_fric, rho_form, g, evacuation,
+                         p_zone, rho_fluid_before_cementation, rho_fluid_above_packer, md, md_toc, od_csg, id_csg,
+                         delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k, t_o, alpha, poisson=0.3, f_setting=0):
+
+    axial_force = axial.injection(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k,
+                                  t_o, alpha, poisson, f_setting)
+
+    pressure_differential = [0] * len(axial_force)
+
+    if evacuation == "full":
+        pressure_differential = collapse.injection_fulllevacuation(tvd, tvd_perf, rho_inj, p_inj, tvd_influencedzone,
+                                                                   rho_fluid, p_fric, rho_form, g)
+
+    if evacuation == "partial":
+        pressure_differential = collapse.injection_partialevacuation(tvd, tvd_perf, rho_inj, p_inj, p_zone,
+                                                                     tvd_influencedzone, rho_fluid_before_cementation,
+                                                                     p_fric, rho_form, rho_fluid_above_packer, g)
 
     return axial_force, pressure_differential
