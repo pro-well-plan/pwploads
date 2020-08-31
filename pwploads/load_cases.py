@@ -1,22 +1,22 @@
 from . import axial, burst, collapse
 
 
-def running(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int, v_avg,
-            rho_csg, e, g, a=1.5):
+def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg, e, g,
+            fric=0.24, a=1.5):
 
-    axial_force = axial.running(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,
-                          rho_fluid_int, v_avg, rho_csg, e, g, a)
+    axial_force = axial.running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg,
+                                e, g, fric, a)
 
     pressure_differential = [0] * len(axial_force)
 
     return axial_force, pressure_differential
 
 
-def overpull(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int, v_avg,
-             rho_csg, e, g, a=1.5, f_ov=0):
+def overpull(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg, e, g,
+             fric=0.24, a=1.5, f_ov=0):
 
-    axial_force = axial.pulling(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,
-                                rho_fluid_int, v_avg, rho_csg, e, g, a, f_ov)
+    axial_force = axial.pulling(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg,
+                                e, g, fric, a, f_ov)
 
     pressure_differential = [0] * len(axial_force)
 
