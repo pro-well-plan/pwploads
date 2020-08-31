@@ -1,12 +1,12 @@
 from ..unit_converter import convert_unit
+g = 9.81        # gravity constant, [m/s2]
 
 
-def onefluid_behindcasing(tvd, rho_mud, g):
+def onefluid_behindcasing(tvd, rho_mud):
     """
     Calculate external pressure profile with one fluid behind casing.
     :param tvd: list - true vertical depth, m
     :param rho_mud: mud density, sg
-    :param g: gravity constant, 9.81 m/s2
     :return: internal pressure profile, Pa
     """
 
@@ -17,13 +17,12 @@ def onefluid_behindcasing(tvd, rho_mud, g):
     return p_ext
 
 
-def morefluids_behindcasing(tvd, rho_fluid, tvd_fluid, g):
+def morefluids_behindcasing(tvd, rho_fluid, tvd_fluid):
     """
     Calculate external pressure profile with more than one fluid behind casing.
     :param tvd: list - true vertical depth, m
     :param rho_fluid: list - downwards sorted fluids densities, sg
     :param tvd_fluid: list - reference tvd of fluid change, m
-    :param g: gravity constant, 9.81 m/s2
     :return: internal pressure profile, Pa
     """
 
@@ -51,14 +50,13 @@ def morefluids_behindcasing(tvd, rho_fluid, tvd_fluid, g):
     return p_ext
 
 
-def depleted_zone(tvd, tvd_zone, p_zone, rho_mud, g):
+def depleted_zone(tvd, tvd_zone, p_zone, rho_mud):
     """
     Calculate external pressure profile with a depleted zone.
     :param tvd: list - true vertical depth, m
     :param tvd_zone: tvd at depleted zone, m
     :param p_zone: pressure at depleted zone, bar
     :param rho_mud: mud density, sg
-    :param g: gravity constant, 9.81 m/s2
     :return: internal pressure profile, Pa
     """
 
@@ -75,4 +73,3 @@ def depleted_zone(tvd, tvd_zone, p_zone, rho_mud, g):
             p_ext = g * rho_mud * (x - tvd_mud_droplevel)
 
     return p_ext
-

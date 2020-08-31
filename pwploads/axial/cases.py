@@ -1,4 +1,4 @@
-def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg, e, g,
+def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg, e,
             fric=0.24, a=1.5):
     """
     Calculate axial load during running
@@ -10,7 +10,6 @@ def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     :param rho_fluid: list - downwards sorted fluids densities
     :param v_avg: average running speed, m/s
     :param e: pipe Young's modulus, bar
-    :param g: gravity constant, 9.81 m/s2
     :param fric: sliding friction factor pipe - wellbore
     :param a: ratio of maximum running speed to average running speed
     :return: total axial force profile, kN
@@ -19,7 +18,7 @@ def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     from .forces import air_weight, buoyancy_force, shock_load, drag
 
     f_w = air_weight(trajectory.tvd, nominal_weight)
-    f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, tvd_fluid, rho_fluid, tvd_fluid, rho_fluid, g)
+    f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, tvd_fluid, rho_fluid, tvd_fluid, rho_fluid)
     f_sh = shock_load(trajectory.tvd, v_avg, od_csg, id_csg, nominal_weight, e, a)
     f_d = drag(trajectory, od_csg, id_csg, nominal_weight, tvd_fluid, rho_fluid, fric)
     # f_be --> bending
@@ -29,7 +28,7 @@ def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     return force
 
 
-def pulling(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg, e, g,
+def pulling(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg, e,
             fric=0.24, a=1.5, f_ov=0):
     """
     Calculate axial load during pulling
@@ -41,7 +40,6 @@ def pulling(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     :param rho_fluid: list - downwards sorted fluids densities
     :param v_avg: average running speed, m/s
     :param e: pipe Young's modulus, bar
-    :param g: gravity constant, 9.81 m/s2
     :param fric: sliding friction factor pipe - wellbore
     :param a: ratio of maximum running speed to average running speed
     :param f_ov: overpull force (often during freeing of stuck pipe), kN.
@@ -51,7 +49,7 @@ def pulling(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     from .forces import air_weight, buoyancy_force, shock_load, drag
 
     f_w = air_weight(trajectory.tvd, nominal_weight)
-    f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, tvd_fluid, rho_fluid, tvd_fluid, rho_fluid, g)
+    f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, tvd_fluid, rho_fluid, tvd_fluid, rho_fluid)
     f_sh = shock_load(trajectory.tvd, v_avg, od_csg, id_csg, nominal_weight, e, a)
     f_d = drag(trajectory, od_csg, id_csg, nominal_weight, tvd_fluid, rho_fluid, fric, 'hoisting')
     # f_be --> bending
@@ -62,7 +60,7 @@ def pulling(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     return force
 
 
-def cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int, g,
+def cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int,
                 f_pre=0):
     """
     Calculate axial load during cementing
@@ -74,7 +72,6 @@ def cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ex
     :param rho_fluid_ext: list - downwards sorted fluids densities outside, sg
     :param tvd_fluid_int: list - reference tvd of fluid change inside, m
     :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
-    :param g: gravity constant, 9.81 m/s2
     :param f_pre: pre-loading force applied to the casing string if necessary, kN
     :return: total axial force profile, kN
     """
@@ -82,7 +79,7 @@ def cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ex
     from .forces import air_weight, buoyancy_force
 
     f_w = air_weight(tvd, nominal_weight)
-    f_bu = buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int, g)
+    f_bu = buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int)
     # f_be --> bending
 
     force = [x1 - x2 + f_pre for x1, x2 in zip(f_w, f_bu)]
@@ -91,7 +88,7 @@ def cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ex
     return force
 
 
-def green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int, g,
+def green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int,
                  f_pre=0, f_h=0):
     """
     Calculate axial load during green cement pressure test
@@ -103,7 +100,6 @@ def green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_e
     :param rho_fluid_ext: list - downwards sorted fluids densities outside, sg
     :param tvd_fluid_int: list - reference tvd of fluid change inside, m
     :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
-    :param g: gravity constant, 9.81 m/s2
     :param f_pre: pre-loading force applied to the casing string if necessary, kN
     :param f_h: pressure testing force, kN
     :return: total axial force profile, kN
@@ -111,7 +107,7 @@ def green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_e
     from .forces import air_weight, buoyancy_force
 
     f_w = air_weight(tvd, nominal_weight)
-    f_bu = buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int, g)
+    f_bu = buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int)
     # f_be --> bending
 
     force = [x1 - x2 + f_h + f_pre for x1, x2 in zip(f_w, f_bu)]

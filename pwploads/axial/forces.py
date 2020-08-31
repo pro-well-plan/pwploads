@@ -1,4 +1,5 @@
 from math import pi
+
 from ..unit_converter import convert_unit
 
 
@@ -15,7 +16,7 @@ def air_weight(tvd, nominal_weight):
     return f_w
 
 
-def buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int, g):
+def buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int):
     """
     Calculate axial force due to buoyancy effect
     :param tvd: list - true vertical depth, m
@@ -25,11 +26,10 @@ def buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_
     :param rho_fluid_ext: list - downwards sorted fluids densities outside, sg
     :param tvd_fluid_int: list - reference tvd of fluid change inside, m
     :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
-    :param g: gravity constant, 9.81 m/s2
     :return: axial force profile, kN
     """
-    p_ext = pressure_profile(tvd, tvd_fluid_ext, rho_fluid_ext, g)
-    p_int = pressure_profile(tvd, tvd_fluid_int, rho_fluid_int, g)
+    p_ext = pressure_profile(tvd, tvd_fluid_ext, rho_fluid_ext)
+    p_int = pressure_profile(tvd, tvd_fluid_int, rho_fluid_int)
 
     area_total = (pi / 4) * od_csg ** 2
     area_total = convert_unit(area_total, unit_from="in2", unit_to="m2")
@@ -199,15 +199,15 @@ def shock_load(tvd, v_avg, od_csg, id_csg, nominal_weight, e, a=1.5):
     return f_sh
 
 
-def pressure_profile(tvd, tvd_fluid, rho_fluid, g):
+def pressure_profile(tvd, tvd_fluid, rho_fluid):
     """
     Generate hydrostatic pressure profile
     :param tvd: list - true vertical depth, m
     :param tvd_fluid: list - reference tvd of fluid change, m
     :param rho_fluid: list - downwards sorted fluids densities, sg
-    :param g: gravity constant, 9.81 m/s2
     :return: pressure profile, Pa
     """
+    g = 9.81        # gravity constant, [m/s2]
 
     tvd_fluid.append(tvd[-1])
 

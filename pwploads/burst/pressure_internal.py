@@ -1,13 +1,13 @@
 from ..unit_converter import convert_unit
+g = 9.81        # gravity constant, [m/s2]
 
 
-def fraction_of_bhp_at_wh(tvd, rho_mud, tvd_next_section, g, fraction=0.5):
+def fraction_of_bhp_at_wh(tvd, rho_mud, tvd_next_section, fraction=0.5):
     """
     Calculate internal pressure profile when a fraction of the bottom hole pressure (bhp) is at wellhead.
     :param tvd: list - true vertical depth, m
     :param rho_mud: mud density, sg
     :param tvd_next_section: tvd at bottom, m
-    :param g: gravity constant, 9.81 m/s2
     :param fraction: bhp fraction at wh
     :return: internal pressure profile, Pa
     """
@@ -19,13 +19,12 @@ def fraction_of_bhp_at_wh(tvd, rho_mud, tvd_next_section, g, fraction=0.5):
     return p_int
 
 
-def frac_shoe_gas_grad_above(tvd, frac_gradient, rho_fluid, g):
+def frac_shoe_gas_grad_above(tvd, frac_gradient, rho_fluid):
     """
     Calculate internal pressure profile when fracture pressure ar shoe with gas gradient above.
     :param tvd: list - true vertical depth, m
     :param frac_gradient: fracture gradient, bar/m
     :param rho_fluid: fluid density, sg
-    :param g: gravity constant, 9.81 m/s2
     :return: internal pressure profile, Pa
     """
 
@@ -38,7 +37,7 @@ def frac_shoe_gas_grad_above(tvd, frac_gradient, rho_fluid, g):
     return p_int
 
 
-def gas_kick(tvd, rho_mud, kick_intensity, tvd_kick, vol_kick_initial, rho_kick_initial, id_csg, od_dp, g):
+def gas_kick(tvd, rho_mud, kick_intensity, tvd_kick, vol_kick_initial, rho_kick_initial, id_csg, od_dp):
     """
     Calculate internal pressure profile when circulating out of a kick using the driller’s method.
     :param tvd: list - true vertical depth, m
@@ -49,7 +48,6 @@ def gas_kick(tvd, rho_mud, kick_intensity, tvd_kick, vol_kick_initial, rho_kick_
     :param rho_kick_initial: influx initial density, sg
     :param id_csg: casing inner diameter, in
     :param od_dp: drill pipe outer diameter, in
-    :param g: gravity constant, 9.81 m/s2
     :return: internal pressure profile, Pa
     """
 
@@ -80,19 +78,18 @@ def gas_kick(tvd, rho_mud, kick_intensity, tvd_kick, vol_kick_initial, rho_kick_
 
     whp = [x - g * rho_mud * y for x, y in zip(p_topkick, tvd_topkick)]
 
-    p_int = [max(whp) + ((bhp - max(whp)) / (tvd_kick)) * x for x in tvd]
+    p_int = [max(whp) + ((bhp - max(whp)) / tvd_kick) * x for x in tvd]
 
     return p_int
 
 
-def displacement_to_gas(tvd, p_res, rho_gas, tvd_res, g):
+def displacement_to_gas(tvd, p_res, rho_gas, tvd_res):
     """
     Calculate internal pressure profile when the entire casing string is filled with gas.
     :param tvd: list - true vertical depth, m
     :param p_res: reservoir pressure, bar
     :param rho_gas: gas density, sg
     :param tvd_res: tvd at reservoir, m
-    :param g: gravity constant, 9.81 m/s2
     :return: internal pressure profile, Pa
     """
 
@@ -104,13 +101,12 @@ def displacement_to_gas(tvd, p_res, rho_gas, tvd_res, g):
     return p_int
 
 
-def pressure_test(tvd, p_test, rho_mud, g):
+def pressure_test(tvd, p_test, rho_mud):
     """
     Calculate internal pressure profile based on mud weight applied pressure at the wellhead.
     :param tvd: list - true vertical depth, m
     :param p_test: testing pressure, bar
     :param rho_mud: mud density, sg
-    :param g: gravity constant, 9.81 m/s2
     :return: internal pressure profile, Pa
     """
 
@@ -122,7 +118,7 @@ def pressure_test(tvd, p_test, rho_mud, g):
     return p_int
 
 
-def tubing_leak(tvd, p_res, rho_fluid, tvd_perf, rho_packerfluid, tvd_packer, rho_mud, g):
+def tubing_leak(tvd, p_res, rho_fluid, tvd_perf, rho_packerfluid, tvd_packer, rho_mud):
     """
     Calculate internal pressure profile when a shut-in pressure applied to the top of the production
     annulus due to a tubing leak near the wellhead.
@@ -133,7 +129,6 @@ def tubing_leak(tvd, p_res, rho_fluid, tvd_perf, rho_packerfluid, tvd_packer, rh
     :param rho_packerfluid: packer fluid density, sg
     :param tvd_packer: tvd at packer, m
     :param rho_mud: mud density, sg
-    :param g: gravity constant, 9.81 m/s2
     :return: internal pressure profile, Pa
     """
 
@@ -150,14 +145,13 @@ def tubing_leak(tvd, p_res, rho_fluid, tvd_perf, rho_packerfluid, tvd_packer, rh
     return p_int
 
 
-def tubing_leak_stimulation(tvd, whp, rho_packerfluid, rho_injectionfluid, g, tvd_packer=0):
+def tubing_leak_stimulation(tvd, whp, rho_packerfluid, rho_injectionfluid, tvd_packer=0):
     """
 
     :param tvd: list - true vertical depth, m
     :param whp: wellhead pressure, bar
     :param rho_packerfluid: packer fluid density, sg
     :param rho_injectionfluid: injection fluid density, sg
-    :param g: gravity constant, 9.81 m/s2
     :param tvd_packer: tvd at packer, m
     :return: internal pressure profile, Pa
     """
@@ -170,6 +164,3 @@ def tubing_leak_stimulation(tvd, whp, rho_packerfluid, rho_injectionfluid, g, tv
             [whp + g * rho_injectionfluid * x for x in tvd if x > tvd_packer]
 
     return p_int
-
-
-
