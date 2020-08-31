@@ -142,6 +142,21 @@ def production_with_packer(tvd, rho_fluid, rho_mud, p_res, tvd_perf, rho_packerf
 
 def production_with_packer_and_depletedzone(tvd, rho_fluid, rho_mud, p_res, tvd_perf, rho_packerfluid, tvd_packer, g,
                                             tvd_zone, p_zone):
+    """
+    Calculate differential pressure profile during production with packer and a depleted zone.
+    :param tvd: list - true vertical depth, m
+    :param rho_fluid: fluid density, sg
+    :param rho_mud: mud density, sg
+    :param p_res: reservoir pressure, bar
+    :param tvd_perf: tvd at perforations, m
+    :param rho_packerfluid: packer fluid density, sg
+    :param tvd_packer: tvd at packer, m
+    :param g: gravity constant, 9.81 m/s2
+    :param tvd_zone: tvd at depleted zone, m
+    :param p_zone: pressure at depleted zone, bar
+    :return: differential pressure profile, Pa
+    """
+
     from .pressure_internal import tubing_leak
     from .pressure_external import depleted_zone
 
@@ -154,6 +169,17 @@ def production_with_packer_and_depletedzone(tvd, rho_fluid, rho_mud, p_res, tvd_
 
 
 def production_without_packer(tvd, p_res, rho_gas, tvd_res, rho_mud, g):
+    """
+    Calculate differential pressure profile during production without packer.
+    :param tvd: list - true vertical depth, m
+    :param p_res: reservoir pressure, bar
+    :param rho_gas: gas density, sg
+    :param tvd_res: tvd at reservoir, m
+    :param rho_mud: mud density, sg
+    :param g: gravity constant, 9.81 m/s2
+    :return: differential pressure profile, Pa
+    """
+
     from .pressure_internal import displacement_to_gas
     from .pressure_external import onefluid_behindcasing
 
@@ -166,6 +192,19 @@ def production_without_packer(tvd, p_res, rho_gas, tvd_res, rho_mud, g):
 
 
 def production_without_packer_and_depletedzone(tvd, p_res, rho_gas, tvd_res, tvd_zone, p_zone, rho_mud, g):
+    """
+    Calculate differential pressure profile during production with depleted zone and without packer.
+    :param tvd: list - true vertical depth, m
+    :param p_res: reservoir pressure, bar
+    :param rho_gas: gas density, sg
+    :param tvd_res: tvd at reservoir, m
+    :param tvd_zone: tvd at depleted zone, m
+    :param p_zone: pressure at depleted zone, bar
+    :param rho_mud: mud density, sg
+    :param g: gravity constant, 9.81 m/s2
+    :return: differential pressure profile, Pa
+    """
+
     from .pressure_internal import displacement_to_gas
     from .pressure_external import depleted_zone
 
@@ -178,6 +217,18 @@ def production_without_packer_and_depletedzone(tvd, p_res, rho_gas, tvd_res, tvd
 
 
 def stimulation(tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid, g, tvd_packer=0):
+    """
+    Calculate differential pressure profile during stimulation.
+    :param tvd: list - true vertical depth, m
+    :param whp: wellhead pressure, bar
+    :param rho_injectionfluid: injection fluid density, sg
+    :param rho_mud:
+    :param rho_packerfluid: packer fluid density, sg
+    :param g: gravity constant, 9.81 m/s2
+    :param tvd_packer: tvd at packer, m
+    :return: differential pressure profile, Pa
+    """
+
     from .pressure_internal import tubing_leak_stimulation
     from .pressure_external import onefluid_behindcasing
 
@@ -189,11 +240,21 @@ def stimulation(tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid, g, tvd_p
     return pressure_differential
 
 
-def fluid_storage_onefluid_behindcasing(tvd, tvd_frac, rho_fluid, frac_gradient, rho_mud, g):
+def fluid_storage_onefluid_behindcasing(tvd, rho_fluid, frac_gradient, rho_mud, g):
+    """
+    Calculate differential pressure profile during fluid storage with one fluid behind the casing.
+    :param tvd: list - true vertical depth, m
+    :param rho_fluid: fluid density, sg
+    :param frac_gradient: fracture gradient, bar/m
+    :param rho_mud: mud density, sg
+    :param g: gravity constant, 9.81 m/s2
+    :return: differential pressure profile, Pa
+    """
+
     from .pressure_internal import frac_shoe_gas_grad_above
     from .pressure_external import onefluid_behindcasing
 
-    p_int = frac_shoe_gas_grad_above(tvd, frac_gradient, tvd_frac, rho_fluid, g)
+    p_int = frac_shoe_gas_grad_above(tvd, frac_gradient, rho_fluid, g)
     p_ext = onefluid_behindcasing(tvd, rho_mud, g)
 
     pressure_differential = p_int - p_ext
@@ -201,11 +262,22 @@ def fluid_storage_onefluid_behindcasing(tvd, tvd_frac, rho_fluid, frac_gradient,
     return pressure_differential
 
 
-def fluid_storage_morefluids_behindcasing(tvd, tvd_frac, frac_gradient, rho_fluid, tvd_fluid, g):
+def fluid_storage_morefluids_behindcasing(tvd, frac_gradient, rho_fluid, tvd_fluid, g):
+    """
+    Calculate differential pressure profile during fluid storage with more than one fluid behind the casing.
+    :param tvd: list - true vertical depth, m
+    :param rho_fluid: fluid density, sg
+    :param frac_gradient: fracture gradient, bar/m
+    :param rho_fluid: list - downwards sorted fluids densities, sg
+    :param tvd_fluid: list - reference tvd of fluid change, m
+    :param g: gravity constant, 9.81 m/s2
+    :return: differential pressure profile, Pa
+    """
+
     from .pressure_internal import frac_shoe_gas_grad_above
     from .pressure_external import morefluids_behindcasing
 
-    p_int = frac_shoe_gas_grad_above(tvd, frac_gradient, tvd_frac, rho_fluid, g)
+    p_int = frac_shoe_gas_grad_above(tvd, frac_gradient, rho_fluid, g)
     p_ext = morefluids_behindcasing(tvd, rho_fluid, tvd_fluid, g)
 
     pressure_differential = p_int - p_ext
@@ -213,11 +285,23 @@ def fluid_storage_morefluids_behindcasing(tvd, tvd_frac, frac_gradient, rho_flui
     return pressure_differential
 
 
-def fluid_storage_depletedzone(tvd, tvd_frac, frac_gradient, rho_fluid, tvd_zone, p_zone, rho_mud, g):
+def fluid_storage_depletedzone(tvd, frac_gradient, rho_fluid, tvd_zone, p_zone, rho_mud, g):
+    """
+    Calculate differential pressure profile during fluid storage with depleted zone.
+    :param tvd: list - true vertical depth, m
+    :param frac_gradient: fracture gradient, bar/m
+    :param rho_fluid: fluid density, sg
+    :param tvd_zone: tvd at depleted zone, m
+    :param p_zone: pressure at depleted zone, bar
+    :param rho_mud: mud density, sg
+    :param g: gravity constant, 9.81 m/s2
+    :return: differential pressure profile, Pa
+    """
+
     from .pressure_internal import frac_shoe_gas_grad_above
     from .pressure_external import depleted_zone
 
-    p_int = frac_shoe_gas_grad_above(tvd, frac_gradient, tvd_frac, rho_fluid, g)
+    p_int = frac_shoe_gas_grad_above(tvd, frac_gradient, rho_fluid, g)
     p_ext = depleted_zone(tvd, tvd_zone, p_zone, rho_mud, g)
 
     pressure_differential = p_int - p_ext
