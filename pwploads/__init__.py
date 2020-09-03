@@ -9,27 +9,25 @@ class Casing(object):
         self.ellipse = triaxial(yield_s, strength_burst, self.od, self.id)
         self.csg_loads = []
         self.nominal_weight = nominal_weight
+        self.trajectory = None
 
-    def running(self, tvd_fluid=[], rho_fluid=[10], v_avg=0.3, e=32e6, g=0.052,
-                fric=0.24, a=1.5):
+    def running(self, tvd_fluid=[], rho_fluid=[10], v_avg=0.3, e=32e6, fric=0.24, a=1.5):
 
         from .load_cases import running
 
         axial_force, pressure_differential = running(self.trajectory, self.nominal_weight, self.od, self.id,
-                                                     tvd_fluid, rho_fluid, v_avg, e, g, fric, a)
+                                                     tvd_fluid, rho_fluid, v_avg, e, fric, a)
 
         self.csg_loads.append(
             ["Running", axial_force, pressure_differential]
         )
 
-    def overpull(self, tvd_fluid=[], rho_fluid=[10], v_avg=0.3, e=32e6, g=0.052,
-                 fric=0.24, a=1.5, f_ov=0):
+    def overpull(self, tvd_fluid=[], rho_fluid=[10], v_avg=0.3, e=32e6, fric=0.24, a=1.5, f_ov=0):
 
         from .load_cases import overpull
 
         axial_force, pressure_differential = overpull(self.trajectory, self.nominal_weight, self.od, self.id,
-                                                      tvd_fluid, rho_fluid, v_avg, e, g,
-                                                      fric, a, f_ov)
+                                                      tvd_fluid, rho_fluid, v_avg, e, fric, a, f_ov)
 
         self.csg_loads.append(
             ["Overpull", axial_force, pressure_differential]
