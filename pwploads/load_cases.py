@@ -3,6 +3,21 @@ from . import axial, burst, collapse
 
 def running(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg, e,
             fric=0.24, a=1.5):
+    """
+    Load case: Running in hole
+    :param trajectory: wellpath object
+    :param nominal_weight: weight per unit length, kg/m
+    :param od_csg: pipe outer diameter, in
+    :param id_csg: pipe inner diameter, in
+    :param shoe_depth: measured depth at shoe, m
+    :param tvd_fluid: list - reference tvd of fluid change
+    :param rho_fluid: list - downwards sorted fluids densities
+    :param v_avg: average running speed, m/s
+    :param e: pipe Young's modulus, bar
+    :param fric: sliding friction factor pipe - wellbore
+    :param a: ratio of maximum running speed to average running speed
+    :return: total axial force profile [kN] and pressure difference [psi]
+    """
 
     axial_force = axial.running(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg,
                                 e, fric, a)
@@ -14,6 +29,22 @@ def running(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, r
 
 def overpull(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg, e,
              fric=0.24, a=1.5, f_ov=0):
+    """
+    Load case: Overpull
+    :param trajectory: wellpath object
+    :param nominal_weight: weight per unit length, kg/m
+    :param od_csg: pipe outer diameter, in
+    :param id_csg: pipe inner diameter, in
+    :param shoe_depth: measured depth at shoe, m
+    :param tvd_fluid: list - reference tvd of fluid change
+    :param rho_fluid: list - downwards sorted fluids densities
+    :param v_avg: average running speed, m/s
+    :param e: pipe Young's modulus, bar
+    :param fric: sliding friction factor pipe - wellbore
+    :param a: ratio of maximum running speed to average running speed
+    :param f_ov: overpull force (often during freeing of stuck pipe), kN.
+    :return: total axial force profile [kN] and pressure difference [psi]
+    """
 
     axial_force = axial.pulling(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg,
                                 e, fric, a, f_ov)
@@ -26,15 +57,30 @@ def overpull(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, 
 # BURST CASES
 
 def green_cement_pressure_test(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,
-                               rho_fluid_int, p_test, rho_mud, rho_fluid=None, tvd_fluid=None, f_pre=0, f_h=0):
+                               rho_fluid_int, p_test, f_pre=0, f_h=0):
+    """
+    Load case: Green Cement
+    :param tvd: list - true vertical depth, m
+    :param nominal_weight: weight per unit length, kg/m
+    :param od_csg: pipe outer diameter, in
+    :param id_csg: pipe inner diameter, in
+    :param tvd_fluid_ext: list - reference tvd of fluid change outside, m
+    :param rho_fluid_ext: list - downwards sorted fluids densities outside, sg
+    :param tvd_fluid_int: list - reference tvd of fluid change inside, m
+    :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
+    :param p_test: testing pressure, bar
+    :param f_pre: pre-loading force applied to the casing string if necessary, kN
+    :param f_h: pressure testing force, kN
+    :return: total axial force profile, kN
+    """
 
     axial_force = axial.green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,
                                      rho_fluid_int, f_pre, f_h)
 
-    if (type(rho_fluid) == list) and (type(tvd_fluid) == list):
-        pressure_differential = burst.pressure_test_morefluids(tvd, p_test, rho_mud, rho_fluid, tvd_fluid)
+    if len(rho_fluid_ext) > 1:
+        pressure_differential = burst.pressure_test_morefluids(tvd, p_test, rho_fluid_int, rho_fluid_ext, tvd_fluid_ext)
     else:
-        pressure_differential = burst.pressure_test_onefluid(tvd, p_test, rho_mud)
+        pressure_differential = burst.pressure_test_onefluid(tvd, p_test, rho_fluid_int)
 
     return axial_force, pressure_differential
 
