@@ -1,4 +1,4 @@
-def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg, e,
+def running(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg, e,
             fric=0.24, a=1.5):
     """
     Calculate axial load during running
@@ -6,6 +6,7 @@ def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
+    :param shoe_depth: measured depth at shoe, m
     :param tvd_fluid: list - reference tvd of fluid change
     :param rho_fluid: list - downwards sorted fluids densities
     :param v_avg: average running speed, m/s
@@ -20,7 +21,7 @@ def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     f_w = air_weight(trajectory.tvd, nominal_weight)
     f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, tvd_fluid, rho_fluid, tvd_fluid, rho_fluid)
     f_sh = shock_load(trajectory.tvd, v_avg, od_csg, id_csg, nominal_weight, e, a)
-    f_d = drag(trajectory, od_csg, id_csg, nominal_weight, tvd_fluid, rho_fluid, fric)
+    f_d = drag(trajectory, od_csg, id_csg, shoe_depth, nominal_weight, tvd_fluid, rho_fluid, fric)
     # f_be --> bending
 
     force = [x1 - x2 + x3 - x4 for x1, x2, x3, x4 in zip(f_w, f_bu, f_sh, f_d)]
@@ -28,7 +29,7 @@ def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     return force
 
 
-def pulling(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg, e,
+def pulling(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg, e,
             fric=0.24, a=1.5, f_ov=0):
     """
     Calculate axial load during pulling
@@ -36,6 +37,7 @@ def pulling(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
+    :param shoe_depth: measured depth at shoe, m
     :param tvd_fluid: list - reference tvd of fluid change
     :param rho_fluid: list - downwards sorted fluids densities
     :param v_avg: average running speed, m/s
@@ -51,7 +53,7 @@ def pulling(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     f_w = air_weight(trajectory.tvd, nominal_weight)
     f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, tvd_fluid, rho_fluid, tvd_fluid, rho_fluid)
     f_sh = shock_load(trajectory.tvd, v_avg, od_csg, id_csg, nominal_weight, e, a)
-    f_d = drag(trajectory, od_csg, id_csg, nominal_weight, tvd_fluid, rho_fluid, fric, 'hoisting')
+    f_d = drag(trajectory, od_csg, id_csg, shoe_depth, nominal_weight, tvd_fluid, rho_fluid, fric, 'hoisting')
     # f_be --> bending
 
     force = [x1 - x2 + x3 + x4 + f_ov for x1, x2, x3, x4 in zip(f_w, f_bu, f_sh, f_d)]

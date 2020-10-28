@@ -11,23 +11,37 @@ class Casing(object):
         self.nominal_weight = nominal_weight
         self.trajectory = None
 
-    def running(self, tvd_fluid=[], rho_fluid=[10], v_avg=0.3, e=32e6, fric=0.24, a=1.5):
+    def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=32e6, fric=0.24, a=1.5):
 
         from .load_cases import running
 
+        if tvd_fluid is None:
+            tvd_fluid = []
+        if rho_fluid is None:
+            rho_fluid = [1.2]
+
         axial_force, pressure_differential = running(self.trajectory, self.nominal_weight, self.od, self.id,
-                                                     tvd_fluid, rho_fluid, v_avg, e, fric, a)
+                                                     self.shoe_depth, tvd_fluid, rho_fluid, v_avg, e, fric, a)
+
+        axial_force = [x * 1000 / 4.448 for x in axial_force]   # kN to lbf
 
         self.csg_loads.append(
             ["Running", axial_force, pressure_differential]
         )
 
-    def overpull(self, tvd_fluid=[], rho_fluid=[10], v_avg=0.3, e=32e6, fric=0.24, a=1.5, f_ov=0):
+    def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=32e6, fric=0.24, a=1.5, f_ov=0):
 
         from .load_cases import overpull
 
+        if tvd_fluid is None:
+            tvd_fluid = []
+        if rho_fluid is None:
+            rho_fluid = [1.2]
+
         axial_force, pressure_differential = overpull(self.trajectory, self.nominal_weight, self.od, self.id,
-                                                      tvd_fluid, rho_fluid, v_avg, e, fric, a, f_ov)
+                                                      self.shoe_depth, tvd_fluid, rho_fluid, v_avg, e, fric, a, f_ov)
+
+        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
 
         self.csg_loads.append(
             ["Overpull", axial_force, pressure_differential]

@@ -1,10 +1,10 @@
 from . import axial, burst, collapse
 
 
-def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg, e,
+def running(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg, e,
             fric=0.24, a=1.5):
 
-    axial_force = axial.running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg,
+    axial_force = axial.running(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg,
                                 e, fric, a)
 
     pressure_differential = [0] * len(axial_force)
@@ -12,10 +12,10 @@ def running(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_
     return axial_force, pressure_differential
 
 
-def overpull(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg, e,
+def overpull(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg, e,
              fric=0.24, a=1.5, f_ov=0):
 
-    axial_force = axial.pulling(trajectory, nominal_weight, od_csg, id_csg, tvd_fluid, rho_fluid, v_avg,
+    axial_force = axial.pulling(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg,
                                 e, fric, a, f_ov)
 
     pressure_differential = [0] * len(axial_force)

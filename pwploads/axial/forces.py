@@ -43,13 +43,14 @@ def buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_
     return f_bu
 
 
-def drag(trajectory, od_csg, id_csg, nominal_weight, tvd_fluid, rho_fluid, sliding_fric=0.24,
+def drag(trajectory, od_csg, id_csg, shoe_depth, nominal_weight, tvd_fluid, rho_fluid, sliding_fric=0.24,
          case='lowering', hole=10):
     """
     Calculate axial force due to drag effect
     :param trajectory: wellpath object
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
+    :param shoe_depth: measured depth at shoe, m
     :param nominal_weight: weight per unit length, kg/m
     :param tvd_fluid: list - reference tvd of fluid change
     :param rho_fluid: list - downwards sorted fluids densities
@@ -63,13 +64,21 @@ def drag(trajectory, od_csg, id_csg, nominal_weight, tvd_fluid, rho_fluid, slidi
 
     rhof = density_profile(trajectory.tvd, tvd_fluid, rho_fluid)
 
-    rhof = [x*119.83/1000 for x in rhof]        # ppg to sg
     area = (pi / 4) * (od_csg ** 2 - id_csg * 2)        # in2
     area = convert_unit(area, unit_from="in2", unit_to="m2")
 
     rho_pipe = convert_unit(nominal_weight/area, unit_from="kg/m3", unit_to="sg")    # kg/m3 to sg
-    well_new = torque_drag.create_well(trajectory, od_csg, id_csg, hole, rhof, rhod=rho_pipe)
-    f_d = torque_drag.calc(well_new, case=case, fric=sliding_fric).force[case]      # kN
+
+    f_d = torque_drag.calc(trajectory,
+                           dimensions={'od_pipe': od_csg,
+                                       'id_pipe': id_csg,
+                                       'od_annular': hole,
+                                       'length_pipe': shoe_depth},
+                           densities={'rhof': rhof, 'rhod': rho_pipe},
+                           case=case,
+                           fric=sliding_fric,
+                           wob=0,
+                           tbit=0).force[case]      # kN
 
     return f_d
 
@@ -208,6 +217,7 @@ def pressure_profile(tvd, tvd_fluid, rho_fluid):
     :return: pressure profile, Pa
     """
     g = 9.81        # gravity constant, [m/s2]
+    rho_fluid = [convert_unit(x, unit_from="sg", unit_to="kg/m3") for x in rho_fluid]   # convert sg to kg/m3
 
     tvd_fluid.append(tvd[-1])
 
@@ -221,7 +231,6 @@ def pressure_profile(tvd, tvd_fluid, rho_fluid):
     pressure = []
     density = []
     for x in tvd:
-        rho_fluid_selected = convert_unit(rho_fluid_selected, unit_from="sg", unit_to="kg/m3")
         p = g * rho_fluid_selected * (x - tvd_fluid_prev) + p_prev
         density.append(rho_fluid_selected)
 
