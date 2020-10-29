@@ -71,7 +71,7 @@ def green_cement_pressure_test(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ex
     :param p_test: testing pressure, bar
     :param f_pre: pre-loading force applied to the casing string if necessary, kN
     :param f_h: pressure testing force, kN
-    :return: total axial force profile, kN
+    :return: total axial force profile [kN] and pressure difference [psi]
     """
 
     axial_force = axial.green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,

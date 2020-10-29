@@ -1,3 +1,7 @@
+from math import pi
+from .unit_converter import convert_unit
+
+
 class Casing(object):
 
     def __init__(self, od_csg, id_csg, shoe_depth, yield_s=80000, strength_burst=7000, nominal_weight=64):
@@ -5,6 +9,7 @@ class Casing(object):
         # DEPTH
         self.od = od_csg
         self.id = id_csg
+        self.area = (pi / 4) * (self.od ** 2 - self.id * 2)
         self.shoe_depth = shoe_depth
         self.ellipse = triaxial(yield_s, strength_burst, self.od, self.id)
         self.csg_loads = []
@@ -12,6 +17,16 @@ class Casing(object):
         self.trajectory = None
 
     def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=32e6, fric=0.24, a=1.5):
+        """
+        Run load case: Running in hole
+        :param tvd_fluid: list - reference tvd of fluid change
+        :param rho_fluid: list - downwards sorted fluids densities
+        :param v_avg: average running speed, m/s
+        :param e: pipe Young's modulus, bar
+        :param fric: sliding friction factor pipe - wellbore
+        :param a: ratio of maximum running speed to average running speed
+        :return: add results in csg_loads as [load case name, axial_force, pressure_differential]
+        """
 
         from .load_cases import running
 
@@ -30,6 +45,17 @@ class Casing(object):
         )
 
     def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=32e6, fric=0.24, a=1.5, f_ov=0):
+        """
+        Run load case: Overpull
+        :param tvd_fluid: list - reference tvd of fluid change
+        :param rho_fluid: list - downwards sorted fluids densities
+        :param v_avg: average running speed, m/s
+        :param e: pipe Young's modulus, bar
+        :param fric: sliding friction factor pipe - wellbore
+        :param a: ratio of maximum running speed to average running speed
+        :param f_ov: overpull force (often during freeing of stuck pipe), kN.
+        :return: add results in csg_loads as [load case name, axial_force, pressure_differential]
+        """
 
         from .load_cases import overpull
 
@@ -45,6 +71,46 @@ class Casing(object):
 
         self.csg_loads.append(
             ["Overpull", axial_force, pressure_differential]
+        )
+
+    def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, tvd_fluid_ext=None, rho_fluid_ext=None,
+                     f_pre=0, f_h=0):
+        """
+        Run load case: Green Cement Pressure test
+        :param tvd_fluid_ext: list - reference tvd of fluid change outside, m
+        :param rho_fluid_ext: list - downwards sorted fluids densities outside, sg
+        :param tvd_fluid_int: list - reference tvd of fluid change inside, m
+        :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
+        :param f_pre: pre-loading force applied to the casing string if necessary, kN
+        :param f_h: pressure testing force, kN
+        :return: add results in csg_loads as [load case name, axial_force, pressure_differential]
+        """
+
+        from .load_cases import green_cement_pressure_test
+
+        if tvd_fluid_ext is None:
+            tvd_fluid_ext = []
+        if rho_fluid_ext is None:
+            rho_fluid_ext = [1.2]
+        if tvd_fluid_int is None:
+            tvd_fluid_int = []
+        if rho_fluid_int is None:
+            rho_fluid_int = [1.2]
+
+        tvd = self.trajectory.tvd
+        f_test = convert_unit(f_h, unit_from="kN", unit_to="lbf")
+        p_test = convert_unit(f_test / self.area, unit_from="psi", unit_to="bar")
+
+        axial_force, pressure_differential = green_cement_pressure_test(tvd, self.nominal_weight, self.od, self.id,
+                                                                        tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,
+                                                                        rho_fluid_int, p_test, f_pre, f_h)
+
+        pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
+
+        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
+
+        self.csg_loads.append(
+            ["Green Cement", axial_force, pressure_differential]
         )
 
     def add_trajectory(self, trajectory):

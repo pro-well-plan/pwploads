@@ -83,7 +83,7 @@ def pressure_test_onefluid(tvd, p_test, rho_mud):
     p_int = pressure_test(tvd, p_test, rho_mud)
     p_ext = onefluid_behindcasing(tvd, rho_mud)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 
@@ -105,7 +105,7 @@ def pressure_test_morefluids(tvd, p_test, rho_mud, rho_fluid, tvd_fluid):
     p_int = pressure_test(tvd, p_test, rho_mud)
     p_ext = morefluids_behindcasing(tvd, rho_fluid, tvd_fluid)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 

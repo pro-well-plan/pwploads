@@ -25,6 +25,7 @@ def morefluids_behindcasing(tvd, rho_fluid, tvd_fluid):
     :param tvd_fluid: list - reference tvd of fluid change, m
     :return: internal pressure profile, Pa
     """
+    rho_fluid = [convert_unit(x, unit_from="sg", unit_to="kg/m3") for x in rho_fluid]  # convert sg to kg/m3
 
     tvd_fluid.append(tvd[-1])
 
@@ -37,7 +38,6 @@ def morefluids_behindcasing(tvd, rho_fluid, tvd_fluid):
 
     p_ext = []
     for x in tvd:
-        rho_fluid_selected = convert_unit(rho_fluid_selected, unit_from="sg", unit_to="kg/m3")
         p = g * rho_fluid_selected * (x - tvd_fluid_prev) + p_prev
 
         if (x >= tvd_fluid_selected) and (tvd_fluid_selected != tvd[-1]):
@@ -46,7 +46,6 @@ def morefluids_behindcasing(tvd, rho_fluid, tvd_fluid):
             rho_fluid_selected = next(rho_fluid)
             p_prev = p
         p_ext.append(p)
-
     return p_ext
 
 
