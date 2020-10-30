@@ -1,20 +1,30 @@
 from math import pi
 from .unit_converter import convert_unit
+from .collapse_calcs import calc_collapse_pressure
+from numpy import array
 
 
 class Casing(object):
 
-    def __init__(self, od_csg, id_csg, shoe_depth, yield_s=80000, strength_burst=7000, nominal_weight=64):
+    def __init__(self, od_csg, id_csg, shoe_depth, nominal_weight=64, yield_s=80000, df_tension=1.1,
+                 df_compression=1.1, df_burst=1.1, df_collapse=1.1):
         from .von_mises import triaxial
-        # DEPTH
+        from .design_factors import api_limits
+
         self.od = od_csg
         self.id = id_csg
-        self.area = (pi / 4) * (self.od ** 2 - self.id * 2)
+        self.thickness = (self.od - self.id) / 2
+        self.dt = self.od / self.thickness
+        p_burst = 0.875 * 2 * yield_s * self.thickness / self.od
+        p_collapse = calc_collapse_pressure(self.dt, yield_s)
+        self.area = (pi / 4) * (self.od ** 2 - self.id ** 2)
         self.shoe_depth = shoe_depth
-        self.ellipse = triaxial(yield_s, strength_burst, self.od, self.id)
+        self.ellipse = triaxial(yield_s, p_collapse, self.area)
         self.csg_loads = []
         self.nominal_weight = nominal_weight
         self.trajectory = None
+        self.df_lines = api_limits(self.dt, yield_s, p_burst, p_collapse, self.area, df_tension,
+                                   df_compression, df_burst, df_collapse)
 
     def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=32e6, fric=0.24, a=1.5):
         """
@@ -125,15 +135,22 @@ class Casing(object):
     def plot(self):
         import matplotlib.pyplot as plt
 
-        plt.plot(self.ellipse[0], self.ellipse[1], 'k', label='Triaxial')
-        plt.plot(self.ellipse[0], self.ellipse[2], 'k')
+        # Plotting VME
+        plt.plot(array(self.ellipse[0])/1000, self.ellipse[1], 'r', label='Triaxial')
+        plt.plot(array(self.ellipse[0])/1000, self.ellipse[2], 'r')
 
+        # Plotting Design Factors
+        plt.plot(array(self.df_lines[0][0])/1000, self.df_lines[0][1], 'k', label='API')
+        for x in self.df_lines[1:]:
+            plt.plot(array(x[0])/1000, x[1], 'k')
+
+        # Plotting Loads
         for x in self.csg_loads:
-            plt.plot(x[1], x[2], label=x[0])
+            plt.plot(array(x[1])/1000, x[2], label=x[0])
 
-        plt.xlabel('Axial Force, lb-f')
+        plt.xlabel('Axial Force, klb-f')
         plt.ylabel('Pressure Difference, psi')
         plt.ticklabel_format(style='plain')
-        plt.legend()
+        plt.legend(loc='lower right', fontsize='x-small')
         plt.grid()
         plt.show()
