@@ -7,8 +7,8 @@ from numpy import array
 class Casing(object):
 
     def __init__(self, od_csg, id_csg, shoe_depth, nominal_weight=64, yield_s=80000, df_tension=1.1,
-                 df_compression=1.1, df_burst=1.1, df_collapse=1.1):
-        from .von_mises import triaxial
+                 df_compression=1.1, df_burst=1.1, df_collapse=1.1, df_vme=1.25):
+        from .von_mises import vme
         from .design_factors import api_limits
 
         self.od = od_csg
@@ -19,7 +19,7 @@ class Casing(object):
         p_collapse = calc_collapse_pressure(self.dt, yield_s)
         self.area = (pi / 4) * (self.od ** 2 - self.id ** 2)
         self.shoe_depth = shoe_depth
-        self.ellipse = triaxial(yield_s, p_collapse, self.area)
+        self.ellipse = vme(yield_s, self.area, self.id, self.od, df_vme)
         self.csg_loads = []
         self.nominal_weight = nominal_weight
         self.trajectory = None
