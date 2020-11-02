@@ -23,6 +23,12 @@ def api_limits(dt, yield_strength, p_burst, p_collapse, area, df_tension=1.3, df
     collapse_comp_line = [compression_limit, 0], [collapse_limit, collapse_limit]
     tension_line = [tension_limit, tension_limit], [burst_limit, collapse_tens_line[1][-1]]
 
-    df_lines = [burst_line, compression_line, collapse_comp_line, collapse_tens_line, tension_line]
+    x_values = burst_line[0] + tension_line[0] + list(collapse_tens_line[0][::-1]) \
+        + list(collapse_comp_line[0][::-1]) + compression_line[0]
 
-    return df_lines
+    y_values = burst_line[1] + tension_line[1] + list(collapse_tens_line[1][::-1]) \
+        + list(collapse_comp_line[1][::-1]) + compression_line[1]
+
+    api_lines = [x_values, y_values]
+
+    return api_lines

@@ -1,7 +1,6 @@
 from math import pi
 from .unit_converter import convert_unit
 from .collapse_calcs import calc_collapse_pressure
-from numpy import array
 
 
 class Casing(object):
@@ -23,8 +22,8 @@ class Casing(object):
         self.csg_loads = []
         self.nominal_weight = nominal_weight
         self.trajectory = None
-        self.df_lines = api_limits(self.dt, yield_s, p_burst, p_collapse, self.area, df_tension,
-                                   df_compression, df_burst, df_collapse)
+        self.api_lines = api_limits(self.dt, yield_s, p_burst, p_collapse, self.area, df_tension,
+                                    df_compression, df_burst, df_collapse)
         self.design_factor = {'vme': df_vme,
                               'api_compression': df_compression,
                               'api_tension': df_tension,
@@ -137,26 +136,11 @@ class Casing(object):
 
         self.trajectory = trajectory
 
-    def plot(self):
-        import matplotlib.pyplot as plt
+    def plot(self, plot_type='plotly'):
+        from .plot import create_plotly_figure, create_pyplot_figure
+        if plot_type == 'plotly':
+            fig = create_plotly_figure(self)
+        else:
+            fig = create_pyplot_figure(self)
 
-        # Plotting VME
-        plt.plot(array(self.ellipse[0])/1000, self.ellipse[1], 'r', label='Triaxial ' +
-                 str(self.design_factor['vme']))
-        plt.plot(array(self.ellipse[0])/1000, self.ellipse[2], 'r')
-
-        # Plotting Design Factors
-        plt.plot(array(self.df_lines[0][0])/1000, self.df_lines[0][1], 'k', label='API')
-        for x in self.df_lines[1:]:
-            plt.plot(array(x[0])/1000, x[1], 'k')
-
-        # Plotting Loads
-        for x in self.csg_loads:
-            plt.plot(array(x[1])/1000, x[2], label=x[0])
-
-        plt.xlabel('Axial Force, klb-f')
-        plt.ylabel('Pressure Difference, psi')
-        plt.ticklabel_format(style='plain')
-        plt.legend(loc='lower right', fontsize='x-small')
-        plt.grid()
-        plt.show()
+        return fig
