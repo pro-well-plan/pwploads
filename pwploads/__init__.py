@@ -25,6 +25,11 @@ class Casing(object):
         self.trajectory = None
         self.df_lines = api_limits(self.dt, yield_s, p_burst, p_collapse, self.area, df_tension,
                                    df_compression, df_burst, df_collapse)
+        self.design_factor = {'vme': df_vme,
+                              'api_compression': df_compression,
+                              'api_tension': df_tension,
+                              'api_burst': df_burst,
+                              'api_collapse': df_collapse}
 
     def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=32e6, fric=0.24, a=1.5):
         """
@@ -136,7 +141,8 @@ class Casing(object):
         import matplotlib.pyplot as plt
 
         # Plotting VME
-        plt.plot(array(self.ellipse[0])/1000, self.ellipse[1], 'r', label='Triaxial')
+        plt.plot(array(self.ellipse[0])/1000, self.ellipse[1], 'r', label='Triaxial ' +
+                 str(self.design_factor['vme']))
         plt.plot(array(self.ellipse[0])/1000, self.ellipse[2], 'r')
 
         # Plotting Design Factors
