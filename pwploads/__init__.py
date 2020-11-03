@@ -4,6 +4,37 @@ from .collapse_calcs import calc_collapse_pressure
 
 
 class Casing(object):
+    """
+    Casing object.
+
+    Arguments:
+        od_csg (outer diameter, float or int): casing outer diameter [in].
+        id_csg (inner diameter, float or int): casing inner diameter [in].
+        shoe_depth (depth at shoe, float or int): measured depth at shoe [m].
+
+    Keyword Arguments:
+        nominal_weight (nominal weight, float or int): weight per unit length [kg/m].
+        yield_s (yield strength, int): pipe's yield strength [psi].
+        df_tension (design factor - tension, float): API design factor for tension.
+        df_compression (design factor - compression, float): API design factor for compression.
+        df_burst (design factor - burst, float): API design factor for burst.
+        df_collapse (design factor - collapse, float): API design factor for collapse.
+        df_vme (design factor - Von Mises, float): design factor for triaxial.
+
+    Attributes:
+        od (float): outer diameter of the casing [in]
+        id (float): inner diameter of the casing [in]
+        thickness (str or None): outer diameter of the casing [in]
+        dt (float): ratio --> outer diameter / thickness
+        area (float): effective area [in^2]
+        shoe_depth (float or int): measured depth at shoe [m]
+        ellipse (list): triaxial points [x, y+, y-]
+        csg_loads (list): list of loads that have been run
+        nominal_weight (float or int): weight per unit length [kg/m]
+        trajectory (obj): wellbore trajectory object
+        api_lines (list): API limits coordinates [x, y]
+        design_factor (dict): design factors used 'vme', 'api_compression', 'api_tension', 'api_burst', 'api_collapse'
+    """
 
     def __init__(self, od_csg, id_csg, shoe_depth, nominal_weight=64, yield_s=80000, df_tension=1.1,
                  df_compression=1.1, df_burst=1.1, df_collapse=1.1, df_vme=1.25):
@@ -33,13 +64,17 @@ class Casing(object):
     def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=32e6, fric=0.24, a=1.5):
         """
         Run load case: Running in hole
-        :param tvd_fluid: list - reference tvd of fluid change
-        :param rho_fluid: list - downwards sorted fluids densities
-        :param v_avg: average running speed, m/s
-        :param e: pipe Young's modulus, bar
-        :param fric: sliding friction factor pipe - wellbore
-        :param a: ratio of maximum running speed to average running speed
-        :return: add results in csg_loads as [load case name, axial_force, pressure_differential]
+
+        Keyword Arguments:
+            tvd_fluid (list or None): reference tvd of fluid change
+            rho_fluid (list or None): downwards sorted fluids densities
+            v_avg (float): average running speed, m/s
+            e (int): pipe Young's modulus, bar
+            fric (float): sliding friction factor pipe - wellbore
+            a (float): ratio of maximum running speed to average running speed
+
+        Returns:
+            None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
         """
 
         from .load_cases import running
@@ -61,14 +96,18 @@ class Casing(object):
     def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=32e6, fric=0.24, a=1.5, f_ov=0):
         """
         Run load case: Overpull
-        :param tvd_fluid: list - reference tvd of fluid change
-        :param rho_fluid: list - downwards sorted fluids densities
-        :param v_avg: average running speed, m/s
-        :param e: pipe Young's modulus, bar
-        :param fric: sliding friction factor pipe - wellbore
-        :param a: ratio of maximum running speed to average running speed
-        :param f_ov: overpull force (often during freeing of stuck pipe), kN.
-        :return: add results in csg_loads as [load case name, axial_force, pressure_differential]
+
+        Keyword Arguments:
+            tvd_fluid (list or None): reference tvd of fluid change
+            rho_fluid (list or None): downwards sorted fluids densities
+            v_avg (float): average running speed, m/s
+            e (int): pipe Young's modulus, bar
+            fric (float): sliding friction factor pipe - wellbore
+            a (float): ratio of maximum running speed to average running speed
+            f_ov (int or float): overpull force (often during freeing of stuck pipe), kN.
+
+        Returns:
+            None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
         """
 
         from .load_cases import overpull
@@ -91,13 +130,17 @@ class Casing(object):
                      f_pre=0, f_h=0):
         """
         Run load case: Green Cement Pressure test
-        :param tvd_fluid_ext: list - reference tvd of fluid change outside, m
-        :param rho_fluid_ext: list - downwards sorted fluids densities outside, sg
-        :param tvd_fluid_int: list - reference tvd of fluid change inside, m
-        :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
-        :param f_pre: pre-loading force applied to the casing string if necessary, kN
-        :param f_h: pressure testing force, kN
-        :return: add results in csg_loads as [load case name, axial_force, pressure_differential]
+
+        Keyword Arguments:
+            tvd_fluid_ext (list or None): reference tvd of fluid change outside, m
+            rho_fluid_ext (list or None): downwards sorted fluids densities outside, sg
+            tvd_fluid_int (list or None): reference tvd of fluid change inside, m
+            rho_fluid_int (list or None): downwards sorted fluids densities inside, sg
+            f_pre (int or float): pre-loading force applied to the casing string if necessary, kN
+            f_h (int or float): pressure testing force, kN
+
+        Returns:
+            None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
         """
 
         from .load_cases import green_cement_pressure_test
