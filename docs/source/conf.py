@@ -31,8 +31,7 @@ extensions = [
     "sphinx.ext.imgmath",
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
-    "sphinx.ext.napoleon",
-    "IPython.sphinxext.ipython_console_highlighting",
+    "sphinx.ext.napoleon"
 ]
 #from pkg_resources import get_distribution
 #release = get_distribution('pwploads').version
