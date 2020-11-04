@@ -11,6 +11,10 @@ are needed; suggestions and contributions of all kinds are very welcome.
 
 To catch up on the latest development and features, see the [changelog](CHANGELOG.md).
 
+## Documentation
+
+See here for the [complete pwploads package documentation](https://pwploads.readthedocs.io/en/latest/).
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
