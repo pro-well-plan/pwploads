@@ -1,4 +1,3 @@
-from . import burst, collapse
 from .axial import cases as axial
 from .burst import cases as burst
 from .collapse import cases as collapse
