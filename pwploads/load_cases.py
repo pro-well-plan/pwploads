@@ -1,6 +1,4 @@
-from .axial import cases as axial
-from .burst import cases as burst
-from .collapse import cases as collapse
+from . import axial, burst, collapse
 
 
 def running(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg, e,
