@@ -1,3 +1,6 @@
+.. _create_casing:
+
+
 Creating a casing object
 ========================
 

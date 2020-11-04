@@ -1,3 +1,6 @@
+.. _add_loads:
+
+
 Adding load cases
 =================
 

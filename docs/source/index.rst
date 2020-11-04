@@ -16,6 +16,7 @@ information about any function included in this package.
    installation
    create_casing
    loads
+   tutorial
 
 |casing_with_loads|
 
@@ -25,6 +26,12 @@ information about any function included in this package.
 About Pro Well Plan
 -------------------
 
+Pro Well Plan offers an easy and effective
+well planning platform for the entire team.
+Check out `our website`_ to know more about us.
+
 .. raw:: html
 
    <iframe width="560" height="315" src="https://www.youtube.com/embed/fTHIEWFnMTs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+.. _our website: https://prowellplan.com/
