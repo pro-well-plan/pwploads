@@ -126,18 +126,17 @@ class Casing(object):
             ["Overpull", axial_force, pressure_differential]
         )
 
-    def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, tvd_fluid_ext=None, rho_fluid_ext=None,
-                     f_pre=0, f_h=0):
+    def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8,
+                     f_pre=0, p_test=0):
         """
         Run load case: Green Cement Pressure test
 
         Keyword Arguments:
-            tvd_fluid_ext (list or None): reference tvd of fluid change outside, m
-            rho_fluid_ext (list or None): downwards sorted fluids densities outside, sg
+            rho_cement (float): cement density, sg
             tvd_fluid_int (list or None): reference tvd of fluid change inside, m
             rho_fluid_int (list or None): downwards sorted fluids densities inside, sg
             f_pre (int or float): pre-loading force applied to the casing string if necessary, kN
-            f_h (int or float): pressure testing force, kN
+            p_test (int or float): testing pressure, psi
 
         Returns:
             None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
@@ -145,22 +144,18 @@ class Casing(object):
 
         from .load_cases import green_cement_pressure_test
 
-        if tvd_fluid_ext is None:
-            tvd_fluid_ext = []
-        if rho_fluid_ext is None:
-            rho_fluid_ext = [1.2]
         if tvd_fluid_int is None:
             tvd_fluid_int = []
         if rho_fluid_int is None:
             rho_fluid_int = [1.2]
 
         tvd = self.trajectory.tvd
-        f_test = convert_unit(f_h, unit_from="kN", unit_to="lbf")
-        p_test = convert_unit(f_test / self.area, unit_from="psi", unit_to="bar")
+        f_test = convert_unit(p_test * self.area, unit_from="lbf", unit_to="kN")
+        p_test = convert_unit(p_test, unit_from="psi", unit_to="bar")
 
         axial_force, pressure_differential = green_cement_pressure_test(tvd, self.nominal_weight, self.od, self.id,
-                                                                        tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,
-                                                                        rho_fluid_int, p_test, f_pre, f_h)
+                                                                        rho_cement, tvd_fluid_int,
+                                                                        rho_fluid_int, p_test, f_test, f_pre)
 
         pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
 

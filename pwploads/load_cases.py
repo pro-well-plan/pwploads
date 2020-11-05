@@ -56,31 +56,27 @@ def overpull(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, 
 
 # BURST CASES
 
-def green_cement_pressure_test(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,
-                               rho_fluid_int, p_test, f_pre=0, f_h=0):
+def green_cement_pressure_test(tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
+                               rho_fluid_int, p_test, f_h, f_pre=0):
     """
     Load case: Green Cement
     :param tvd: list - true vertical depth, m
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
-    :param tvd_fluid_ext: list - reference tvd of fluid change outside, m
-    :param rho_fluid_ext: list - downwards sorted fluids densities outside, sg
+    :param rho_cement: cement density, sg
     :param tvd_fluid_int: list - reference tvd of fluid change inside, m
     :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
     :param p_test: testing pressure, bar
-    :param f_pre: pre-loading force applied to the casing string if necessary, kN
     :param f_h: pressure testing force, kN
+    :param f_pre: pre-loading force applied to the casing string if necessary, kN
     :return: total axial force profile [kN] and pressure difference [psi]
     """
 
-    axial_force = axial.green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int,
+    axial_force = axial.green_cement(tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
                                      rho_fluid_int, f_pre, f_h)
 
-    if len(rho_fluid_ext) > 1:
-        pressure_differential = burst.pressure_test_morefluids(tvd, p_test, rho_fluid_int, rho_fluid_ext, tvd_fluid_ext)
-    else:
-        pressure_differential = burst.pressure_test_onefluid(tvd, p_test, rho_fluid_int)
+    pressure_differential = burst.pressure_test_onefluid(tvd, p_test, rho_fluid_int, tvd_fluid_int, rho_cement)
 
     return axial_force, pressure_differential
 
