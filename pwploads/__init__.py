@@ -167,10 +167,10 @@ class Casing(object):
 
     def add_trajectory(self, trajectory):
 
-        trajectory.tvd = [x for x in trajectory.tvd if x <= self.shoe_depth]
-        trajectory.md = trajectory.md[:len(trajectory.tvd)]
-        trajectory.zstep = len(trajectory.tvd)
-        trajectory.inclination = trajectory.inclination[:len(trajectory.tvd)]
+        trajectory.md = [x for x in trajectory.md if x <= self.shoe_depth]
+        trajectory.cells_no = len(trajectory.md)
+        trajectory.tvd = trajectory.tvd[:trajectory.cells_no]
+        trajectory.inclination = trajectory.inclination[:trajectory.cells_no]
 
         self.trajectory = trajectory
 
