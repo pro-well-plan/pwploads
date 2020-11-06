@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/pwploads.svg)](https://badge.fury.io/py/pwploads)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![Webapp](https://img.shields.io/badge/WebApp-under_construction-yellow.svg)](https://pwp-opensource.herokuapp.com/)
+[![Webapp](https://img.shields.io/badge/WebApp-On-green.svg)](https://share.streamlit.io/jcamiloangarita/opensource_apps/app.py)
 
 ## Introduction
 Pwploads is a LGPL licensed library for load cases calculations
@@ -11,6 +11,11 @@ are needed; suggestions and contributions of all kinds are very welcome.
 
 To catch up on the latest development and features, see the [changelog](CHANGELOG.md).
 
+<a href="https://youtu.be/X7Bs9_7NdRM">
+   <img alt="Qries" src="https://user-images.githubusercontent.com/52009346/98381058-a3ef4300-2049-11eb-86eb-dcdc9eb1b523.png"
+   width=500" height="300">
+</a>
+   
 ## Documentation
 
 See here for the [complete pwploads package documentation](https://pwploads.readthedocs.io/en/latest/).
@@ -25,7 +30,6 @@ These instructions will get you a copy of the project up and running on your loc
     * `pip install pwploads`
 * Developers: Source code from [Github](https://github.com/pro-well-plan/pwploads)
     * `git clone https://github.com/pro-well-plan/pwploads`
-
     
 ## Contributing
 
