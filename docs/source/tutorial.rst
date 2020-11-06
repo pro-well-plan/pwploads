@@ -50,6 +50,16 @@ Finally, generate a plot using pyplot from `matplotlib`_. Notice that `plotly`_ 
 .. |casing_with_loads| image:: /figures/casing_all_loads.png
                        :scale: 40%
 
+Web Application
+---------------
+
+There is also the web-app based on pwploads:
+
+.. raw:: html
+
+   <iframe width="560" height="315" src="https://www.youtube.com/embed/X7Bs9_7NdRM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
 .. _well_profile: https://pypi.org/project/well-profile/
 .. _matplotlib: https://pypi.org/project/matplotlib/
 .. _plotly: https://pypi.org/project/plotly/
