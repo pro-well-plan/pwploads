@@ -90,7 +90,7 @@ def cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ex
     return force
 
 
-def green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int,
+def green_cement(tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int, rho_fluid_int,
                  f_pre=0, f_h=0):
     """
     Calculate axial load during green cement pressure test
@@ -98,8 +98,7 @@ def green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_e
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
-    :param tvd_fluid_ext: list - reference tvd of fluid change outside, m
-    :param rho_fluid_ext: list - downwards sorted fluids densities outside, sg
+    :param rho_cement: cement density, sg
     :param tvd_fluid_int: list - reference tvd of fluid change inside, m
     :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
     :param f_pre: pre-loading force applied to the casing string if necessary, kN
@@ -110,7 +109,7 @@ def green_cement(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_e
     from .forces import air_weight, buoyancy_force
 
     f_w = air_weight(tvd, nominal_weight)
-    f_bu = buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int)
+    f_bu = buoyancy_force(tvd, od_csg, id_csg, [], [rho_cement], tvd_fluid_int, rho_fluid_int)
     # f_be --> bending
 
     force = [x1 - x2 + f_h + f_pre for x1, x2 in zip(f_w, f_bu)]

@@ -68,32 +68,35 @@ def drilling_influx_3(tvd, rho_mud, id_csg, od_dp, tvd_kick, kick_intensity, rho
     return pressure_differential
 
 
-def pressure_test_onefluid(tvd, p_test, rho_mud):
+def pressure_test_onefluid(tvd, p_test, rho_fluid_int, tvd_fluid_int, rho_fluid_ext):
     """
     Calculate differential pressure profile during pressure testing with one fluid behind the casing.
     :param tvd: list - true vertical depth, m
     :param p_test: testing pressure, bar
-    :param rho_mud: mud density, sg
+    :param rho_fluid_int: list - downwards sorted internal fluid densities, sg
+    :param tvd_fluid_int: list - reference tvd of internal fluid change, m
+    :param rho_fluid_ext: float - external fluid density, sg
     :return: differential pressure profile, Pa
     """
 
     from .pressure_internal import pressure_test
     from .pressure_external import onefluid_behindcasing
 
-    p_int = pressure_test(tvd, p_test, rho_mud)
-    p_ext = onefluid_behindcasing(tvd, rho_mud)
+    p_int = pressure_test(tvd, p_test, rho_fluid_int, tvd_fluid_int)
+    p_ext = onefluid_behindcasing(tvd, rho_fluid_ext)
 
     pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 
 
-def pressure_test_morefluids(tvd, p_test, rho_mud, rho_fluid, tvd_fluid):
+def pressure_test_morefluids(tvd, p_test, rho_mud, tvd_mud, rho_fluid, tvd_fluid):
     """
     Calculate differential pressure profile during pressure testing with more than one fluid behind the casing.
     :param tvd: list - true vertical depth, m
     :param p_test: testing pressure, bar
-    :param rho_mud: mud density, sg
+    :param rho_mud: list - downwards sorted mud densities, sg
+    :param tvd_mud: list - reference tvd of mud change, m
     :param rho_fluid: list - downwards sorted fluids densities, sg
     :param tvd_fluid: list - reference tvd of fluid change, m
     :return: differential pressure profile, Pa
@@ -102,7 +105,7 @@ def pressure_test_morefluids(tvd, p_test, rho_mud, rho_fluid, tvd_fluid):
     from .pressure_internal import pressure_test
     from .pressure_external import morefluids_behindcasing
 
-    p_int = pressure_test(tvd, p_test, rho_mud)
+    p_int = pressure_test(tvd, p_test, rho_mud, tvd_mud)
     p_ext = morefluids_behindcasing(tvd, rho_fluid, tvd_fluid)
 
     pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
