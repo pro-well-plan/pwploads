@@ -7,6 +7,11 @@ pwploads - load cases analysis for casings
 This is the official documentation of pwploads. Here you will find all the relevant
 information about any function included in this package.
 
+.. raw:: html
+
+   <iframe width="560" height="315" src="https://www.youtube.com/embed/X7Bs9_7NdRM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
 .. |License| image:: https://img.shields.io/badge/License-LGPL_v3-blue.svg
 .. |Version| image:: https://badge.fury.io/py/pwploads.svg
 .. toctree::
@@ -17,11 +22,6 @@ information about any function included in this package.
    create_casing
    loads
    tutorial
-
-|casing_with_loads|
-
-.. |casing_with_loads| image:: /figures/casing_all_loads.png
-                       :scale: 40%
 
 About Pro Well Plan
 -------------------

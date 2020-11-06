@@ -28,16 +28,16 @@ Now it is time to create or load a trajectory using `well_profile`_.
 
 .. code-block:: python
 
-    >>> trajectory = wp.get(3000, profile='J', build_angle=20, kop=1500, eob=2500)
+    >>> trajectory = wp.get(2000, profile='J', build_angle=20, kop=1500, eob=2500)
     >>> casing.add_trajectory(trajectory)
 
 Then just :ref:`add the load cases <add_loads>` you want to include.
 
 .. code-block:: python
 
-    >>> casing.overpull(tvd_fluid=[1200], rho_fluid=[1.2, 1.5], v_avg=0.3, e=32e6, fric=0.24, a=1.5, f_ov=0)
-    >>> casing.running(tvd_fluid=[1200], rho_fluid=[1.2, 1.5], v_avg=0.3, e=32e6, fric=0.24, a=1.5)
-    >>> casing.green_cement(tvd_fluid_ext=[1200], rho_fluid_ext=[1.2, 1.5], f_h=190)
+    >>> casing.overpull(tvd_fluid=[500], rho_fluid=[1.2, 1.5], v_avg=0.3, e=32e6, fric=0.24, a=1.5, f_ov=0)
+    >>> casing.running(tvd_fluid=[500], rho_fluid=[1.2, 1.5], v_avg=0.3, e=32e6, fric=0.24, a=1.5)
+    >>> casing.green_cement(tvd_fluid_int=[500], rho_fluid_int=[1.2, 1.5], rho_cement=1.8, p_test=4472.65, f_pre=0)
 
 Finally, generate a plot using pyplot from `matplotlib`_. Notice that `plotly`_ is also an option (and it is used by default)
 
