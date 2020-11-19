@@ -4,7 +4,7 @@
 [![PyPI version](https://badge.fury.io/py/pwploads.svg)](https://badge.fury.io/py/pwploads)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Webapp](https://img.shields.io/badge/WebApp-On-green.svg)](https://share.streamlit.io/jcamiloangarita/opensource_apps/app.py)
-[![Documentation Status](https://readthedocs.org/projects/pwploads/badge/?version=latest)](http://pwptemp.readthedocs.io/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/pwploads/badge/?version=latest)](http://pwploads.readthedocs.io/?badge=latest)
 
 ## Introduction
 Pwploads is a LGPL licensed library for load cases calculations
