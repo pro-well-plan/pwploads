@@ -21,7 +21,7 @@ copyright = '2020, Pro Well Plan AS'
 author = 'Pro Well Plan AS'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.1'
+release = '0.1.3'
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
