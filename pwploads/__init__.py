@@ -1,6 +1,9 @@
 from math import pi
 from .unit_converter import convert_unit
 from .collapse_calcs import calc_collapse_pressure
+from .von_mises import vme
+from .design_factors import api_limits
+from .connections import get_conn_limits
 
 
 class Casing(object):
@@ -37,24 +40,32 @@ class Casing(object):
     """
 
     def __init__(self, od_csg, id_csg, shoe_depth, nominal_weight=64, yield_s=80000, df_tension=1.1,
-                 df_compression=1.1, df_burst=1.1, df_collapse=1.1, df_vme=1.25):
-        from .von_mises import vme
-        from .design_factors import api_limits
+                 df_compression=1.1, df_burst=1.1, df_collapse=1.1, df_vme=1.25, conn_compression=0.6,
+                 conn_tension=0.6, df_conn_compression=1.0, df_conn_tension=1.0):
 
         self.od = od_csg
         self.id = id_csg
+        self.area = (pi / 4) * (self.od ** 2 - self.id ** 2)
         self.thickness = (self.od - self.id) / 2
         self.dt = self.od / self.thickness
-        p_burst = 0.875 * 2 * yield_s * self.thickness / self.od
-        p_collapse = calc_collapse_pressure(self.dt, yield_s)
-        self.area = (pi / 4) * (self.od ** 2 - self.id ** 2)
+        self.limits = {'burst': 0.875 * 2 * yield_s * self.thickness / self.od,
+                       'burst_df': 0.875 * 2 * yield_s * self.thickness / self.od / df_burst,
+                       'collapse': - calc_collapse_pressure(self.dt, yield_s),
+                       'collapse_df': - calc_collapse_pressure(self.dt, yield_s) / df_collapse,
+                       'compression': - yield_s * self.area,
+                       'compression_df': - yield_s * self.area / df_compression,
+                       'tension': yield_s * self.area,
+                       'tension_df': yield_s * self.area / df_tension}
+
         self.shoe_depth = shoe_depth
         self.ellipse = vme(yield_s, self.area, self.id, self.od, df_vme)
         self.csg_loads = []
         self.nominal_weight = nominal_weight
         self.trajectory = None
-        self.api_lines = api_limits(self.dt, yield_s, p_burst, p_collapse, self.area, df_tension,
-                                    df_compression, df_burst, df_collapse)
+        self.api_lines, self.collapse_curve = api_limits(self.dt, yield_s, self.limits, self.area, df_tension,
+                                                         df_compression, df_burst, df_collapse)
+        self.conn_limits = get_conn_limits(self.limits, conn_compression, conn_tension,
+                                           df_conn_compression, df_conn_tension)
         self.design_factor = {'vme': df_vme,
                               'api_compression': df_compression,
                               'api_tension': df_tension,

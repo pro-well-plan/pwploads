@@ -2,14 +2,14 @@ from numpy import linspace
 from .collapse_calcs import calc_collapse_pressure
 
 
-def api_limits(dt, yield_strength, p_burst, p_collapse, area, df_tension=1.3, df_compression=1.3, df_burst=1.1,
+def api_limits(dt, yield_strength, limits, area, df_tension=1.3, df_compression=1.3, df_burst=1.1,
                df_collapse=1.1):
 
     # Defining respective limits according with design factors
-    burst_limit = p_burst / df_burst
-    collapse_limit = - p_collapse / df_collapse
-    tension_limit = yield_strength * area / df_tension
-    compression_limit = - yield_strength * area / df_compression
+    burst_limit = limits['burst'] / df_burst
+    collapse_limit = limits['collapse'] / df_collapse
+    tension_limit = limits['tension'] / df_tension
+    compression_limit = limits['compression'] / df_compression
 
     # Zone with collapse and tension
     axial_force = linspace(0, tension_limit, 20)
@@ -31,4 +31,4 @@ def api_limits(dt, yield_strength, p_burst, p_collapse, area, df_tension=1.3, df
 
     api_lines = [x_values, y_values]
 
-    return api_lines
+    return api_lines, collapse_tens_line
