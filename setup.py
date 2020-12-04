@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 setup(
     name='pwploads',
     packages=['pwploads', 'pwploads.axial', 'pwploads.burst', 'pwploads.collapse'],
-    version='0.1.3',
+    version='0.2.0',
     license='LGPL v3',
     description='Load Cases for Well Design',
     long_description=long_description,
