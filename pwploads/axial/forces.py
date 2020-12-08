@@ -208,6 +208,23 @@ def shock_load(tvd, v_avg, od_csg, id_csg, nominal_weight, e, a=1.5):
     return f_sh
 
 
+def bending(od_csg, dls, dls_res, e):
+    """
+    Calculate axial force due to sudden stop during running
+    :param od_csg: pipe outer diameter, in
+    :param dls: dog leg severity, °/30m
+    :param e: pipe Young's modulus, bar
+    :return: axial force profile, kN
+    """
+
+    e = convert_unit(e, unit_from="bar", unit_to="psi")
+
+    f_be = [pi * e * (x/dls_res) * od_csg / 4.32e5 for x in dls]       # lbf
+    #f_be = [convert_unit(x, unit_from="lbf", unit_to="kN") for x in f_be]       # lbf to kN
+
+    return f_be
+
+
 def pressure_profile(tvd, tvd_fluid, rho_fluid):
     """
     Generate hydrostatic pressure profile

@@ -72,7 +72,7 @@ class Casing(object):
                               'api_burst': df_burst,
                               'api_collapse': df_collapse}
 
-    def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=32e6, fric=0.24, a=1.5):
+    def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=29e6, fric=0.24, a=1.5):
         """
         Run load case: Running in hole
 
@@ -80,7 +80,7 @@ class Casing(object):
             tvd_fluid (list or None): reference tvd of fluid change
             rho_fluid (list or None): downwards sorted fluids densities
             v_avg (float): average running speed, m/s
-            e (int): pipe Young's modulus, bar
+            e (int): pipe Young's modulus, psi
             fric (float): sliding friction factor pipe - wellbore
             a (float): ratio of maximum running speed to average running speed
 
@@ -95,6 +95,8 @@ class Casing(object):
         if rho_fluid is None:
             rho_fluid = [1.2]
 
+        e = convert_unit(e, unit_from='psi', unit_to='bar')
+
         axial_force, pressure_differential = running(self.trajectory, self.nominal_weight, self.od, self.id,
                                                      self.shoe_depth, tvd_fluid, rho_fluid, v_avg, e, fric, a)
 
@@ -104,7 +106,7 @@ class Casing(object):
             ["Running", axial_force, pressure_differential]
         )
 
-    def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=32e6, fric=0.24, a=1.5, f_ov=0):
+    def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=29e6, fric=0.24, a=1.5, f_ov=0):
         """
         Run load case: Overpull
 
@@ -112,7 +114,7 @@ class Casing(object):
             tvd_fluid (list or None): reference tvd of fluid change
             rho_fluid (list or None): downwards sorted fluids densities
             v_avg (float): average running speed, m/s
-            e (int): pipe Young's modulus, bar
+            e (int): pipe Young's modulus, psi
             fric (float): sliding friction factor pipe - wellbore
             a (float): ratio of maximum running speed to average running speed
             f_ov (int or float): overpull force (often during freeing of stuck pipe), kN.
@@ -128,6 +130,8 @@ class Casing(object):
         if rho_fluid is None:
             rho_fluid = [1.2]
 
+        e = convert_unit(e, unit_from='psi', unit_to='bar')
+
         axial_force, pressure_differential = overpull(self.trajectory, self.nominal_weight, self.od, self.id,
                                                       self.shoe_depth, tvd_fluid, rho_fluid, v_avg, e, fric, a, f_ov)
 
@@ -137,13 +141,13 @@ class Casing(object):
             ["Overpull", axial_force, pressure_differential]
         )
 
-    def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8,
-                     f_pre=0, p_test=0):
+    def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8, e=29e6, f_pre=0, p_test=0):
         """
         Run load case: Green Cement Pressure test
 
         Keyword Arguments:
             rho_cement (float): cement density, sg
+            e (int): pipe Young's modulus, psi
             tvd_fluid_int (list or None): reference tvd of fluid change inside, m
             rho_fluid_int (list or None): downwards sorted fluids densities inside, sg
             f_pre (int or float): pre-loading force applied to the casing string if necessary, kN
@@ -163,10 +167,11 @@ class Casing(object):
         tvd = self.trajectory.tvd
         f_test = convert_unit(p_test * self.area, unit_from="lbf", unit_to="kN")
         p_test = convert_unit(p_test, unit_from="psi", unit_to="bar")
+        e = convert_unit(e, unit_from='psi', unit_to='bar')
 
-        axial_force, pressure_differential = green_cement_pressure_test(tvd, self.nominal_weight, self.od, self.id,
-                                                                        rho_cement, tvd_fluid_int,
-                                                                        rho_fluid_int, p_test, f_test, f_pre)
+        axial_force, pressure_differential = green_cement_pressure_test(self.trajectory, tvd, self.nominal_weight,
+                                                                        self.od, self.id, rho_cement, tvd_fluid_int,
+                                                                        rho_fluid_int, p_test, e, f_test, f_pre)
 
         pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
 

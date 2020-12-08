@@ -1,3 +1,6 @@
+from .forces import *
+
+
 def running(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, rho_fluid, v_avg, e,
             fric=0.24, a=1.5):
     """
@@ -16,16 +19,14 @@ def running(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, r
     :return: total axial force profile, kN
     """
 
-    from .forces import air_weight, buoyancy_force, shock_load, drag
-
     f_w = air_weight(trajectory.tvd, nominal_weight)
     f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, tvd_fluid, rho_fluid, tvd_fluid, rho_fluid)
     f_sh = shock_load(trajectory.tvd, v_avg, od_csg, id_csg, nominal_weight, e, a)
     f_d = drag(trajectory, od_csg, id_csg, shoe_depth, nominal_weight, tvd_fluid, rho_fluid, fric)
-    # f_be --> bending
+    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
 
-    force = [x1 - x2 + x3 - x4 for x1, x2, x3, x4 in zip(f_w, f_bu, f_sh, f_d)]
-    # + f_be
+    force = [x1 - x2 + x3 - x4 + x5 for x1, x2, x3, x4, x5 in zip(f_w, f_bu, f_sh, f_d, f_be)]
+
     return force
 
 
@@ -48,16 +49,13 @@ def pulling(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, r
     :return: total axial force profile, kN
     """
 
-    from .forces import air_weight, buoyancy_force, shock_load, drag
-
     f_w = air_weight(trajectory.tvd, nominal_weight)
     f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, tvd_fluid, rho_fluid, tvd_fluid, rho_fluid)
     f_sh = shock_load(trajectory.tvd, v_avg, od_csg, id_csg, nominal_weight, e, a)
     f_d = drag(trajectory, od_csg, id_csg, shoe_depth, nominal_weight, tvd_fluid, rho_fluid, fric, 'hoisting')
-    # f_be --> bending
+    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
 
-    force = [x1 - x2 + x3 + x4 + f_ov for x1, x2, x3, x4 in zip(f_w, f_bu, f_sh, f_d)]
-    # + f_be
+    force = [x1 - x2 + x3 + x4 + f_ov + x5 for x1, x2, x3, x4, x5 in zip(f_w, f_bu, f_sh, f_d, f_be)]
 
     return force
 
@@ -78,8 +76,6 @@ def cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ex
     :return: total axial force profile, kN
     """
 
-    from .forces import air_weight, buoyancy_force
-
     f_w = air_weight(tvd, nominal_weight)
     f_bu = buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int)
     # f_be --> bending
@@ -90,10 +86,11 @@ def cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ex
     return force
 
 
-def green_cement(tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int, rho_fluid_int,
+def green_cement(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int, rho_fluid_int, e,
                  f_pre=0, f_h=0):
     """
     Calculate axial load during green cement pressure test
+    :param trajectory: wellpath object
     :param tvd: list - true vertical depth, m
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
@@ -101,19 +98,17 @@ def green_cement(tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
     :param rho_cement: cement density, sg
     :param tvd_fluid_int: list - reference tvd of fluid change inside, m
     :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
+    :param e: pipe Young's modulus, bar
     :param f_pre: pre-loading force applied to the casing string if necessary, kN
     :param f_h: pressure testing force, kN
     :return: total axial force profile, kN
     """
 
-    from .forces import air_weight, buoyancy_force
-
     f_w = air_weight(tvd, nominal_weight)
     f_bu = buoyancy_force(tvd, od_csg, id_csg, [], [rho_cement], tvd_fluid_int, rho_fluid_int)
-    # f_be --> bending
+    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
 
-    force = [x1 - x2 + f_h + f_pre for x1, x2 in zip(f_w, f_bu)]
-    # + f_be
+    force = [x1 - x2 + f_h + f_pre + x3 for x1, x2, x3 in zip(f_w, f_bu, f_be)]
 
     return force
 
@@ -134,8 +129,6 @@ def production(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_
     :param f_setting: hang off force of the casing string on slips or hangers, kN
     :return: total axial force profile, kN
     """
-
-    #from .forces import ballooning
 
     # f_bl = ballooning(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, poisson)
     # f_be --> bending
