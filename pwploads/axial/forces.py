@@ -213,14 +213,15 @@ def bending(od_csg, dls, dls_res, e):
     Calculate axial force due to sudden stop during running
     :param od_csg: pipe outer diameter, in
     :param dls: dog leg severity, °/30m
+    :param dls_res: resolution of dog leg severity, m
     :param e: pipe Young's modulus, bar
     :return: axial force profile, kN
     """
 
     e = convert_unit(e, unit_from="bar", unit_to="psi")
 
-    f_be = [pi * e * (x/dls_res) * od_csg / 4.32e5 for x in dls]       # lbf
-    #f_be = [convert_unit(x, unit_from="lbf", unit_to="kN") for x in f_be]       # lbf to kN
+    f_be = [pi * e * (x/dls_res) * od_csg * 30.48 / 4.32e5 for x in dls]       # lbf
+    f_be = [convert_unit(x, unit_from="lbf", unit_to="kN") for x in f_be]       # lbf to kN
 
     return f_be
 
