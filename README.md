@@ -14,9 +14,9 @@ are needed; suggestions and contributions of all kinds are very welcome.
 To catch up on the latest development and features, see the [changelog](CHANGELOG.md).
 
 <a href="https://youtu.be/X7Bs9_7NdRM">
-   <img alt="Qries" src="https://user-images.githubusercontent.com/52009346/98381058-a3ef4300-2049-11eb-86eb-dcdc9eb1b523.png"
+   <img alt="Qries" src="https://user-images.githubusercontent.com/52009346/101466417-69770f80-3941-11eb-85a7-5e8f08a863bd.png"
    width=500" height="300">
-</a>
+</a>                                       
    
 ## Documentation
 
