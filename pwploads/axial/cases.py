@@ -60,28 +60,26 @@ def pulling(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, r
     return force
 
 
-def cementation(tvd, nominal_weight, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int,
-                f_pre=0):
+def cementation(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid, e, f_pre=0):
     """
     Calculate axial load during cementing
+    :param trajectory: wellpath object
     :param tvd: list - true vertical depth, m
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
-    :param tvd_fluid_ext: list - reference tvd of fluid change outside, m
-    :param rho_fluid_ext: list - downwards sorted fluids densities outside, sg
-    :param tvd_fluid_int: list - reference tvd of fluid change inside, m
-    :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
+    :param rho_cement: cement density, sg
+    :param rho_fluid: displacement fluid density, sg
+    :param e: pipe Young's modulus, bar
     :param f_pre: pre-loading force applied to the casing string if necessary, kN
     :return: total axial force profile, kN
     """
 
     f_w = air_weight(tvd, nominal_weight)
-    f_bu = buoyancy_force(tvd, od_csg, id_csg, tvd_fluid_ext, rho_fluid_ext, tvd_fluid_int, rho_fluid_int)
-    # f_be --> bending
+    f_bu = buoyancy_force(tvd, od_csg, id_csg, [], [rho_cement], [], [rho_fluid])
+    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
 
-    force = [x1 - x2 + f_pre for x1, x2 in zip(f_w, f_bu)]
-    # + f_be
+    force = [x1 - x2 + f_pre + x3 for x1, x2, x3 in zip(f_w, f_bu, f_be)]
 
     return force
 

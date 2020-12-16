@@ -54,8 +54,6 @@ def overpull(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, 
     return axial_force, pressure_differential
 
 
-# BURST CASES
-
 def green_cement_pressure_test(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
                                rho_fluid_int, p_test, e, f_h, f_pre=0):
     """
@@ -79,6 +77,28 @@ def green_cement_pressure_test(trajectory, tvd, nominal_weight, od_csg, id_csg, 
                                      rho_fluid_int, e, f_pre, f_h)
 
     pressure_differential = burst.pressure_test_onefluid(tvd, p_test, rho_fluid_int, tvd_fluid_int, rho_cement)
+
+    return axial_force, pressure_differential
+
+
+def cementing(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid, e, f_pre=0):
+    """
+    Load case: Cementing
+    :param trajectory: wellpath object
+    :param nominal_weight: weight per unit length, kg/m
+    :param od_csg: pipe outer diameter, in
+    :param id_csg: pipe inner diameter, in
+    :param rho_cement: cement density, sg
+    :param rho_fluid: displacement fluid density, sg
+    :param e: pipe Young's modulus, bar
+    :param f_pre: pre-loading force applied to the casing string if necessary, kN
+    :return: total axial force profile [kN] and pressure difference [psi]
+    """
+
+    tvd = trajectory.tvd
+    axial_force = axial.cementation(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid, e, f_pre)
+
+    pressure_differential = collapse.plug_cementation_onefluid_behindcasing(tvd, rho_fluid, rho_cement)
 
     return axial_force, pressure_differential
 
@@ -171,8 +191,6 @@ def fluid_storage_depleted_zone(md, md_toc, od_csg, id_csg, delta_rho_i, delta_r
 
     return axial_force, pressure_differential
 
-
-# BURST CASES
 
 def drilling_losses(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k, t_o, alpha,
                     tvd, rho_mud, tvd_zone, p_zone, poisson=0.3, f_setting=0):

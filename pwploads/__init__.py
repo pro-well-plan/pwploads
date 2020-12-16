@@ -181,6 +181,35 @@ class Casing(object):
             ["Green Cement", axial_force, pressure_differential]
         )
 
+    def cementing(self, rho_cement=1.8, rho_fluid=1.3, e=29e6, f_pre=0):
+        """
+        Run load case: Green Cement Pressure test
+
+        Keyword Arguments:
+            rho_cement (float): cement density, sg
+            rho_fluid (float): displacement fluid density, sg
+            e (int): pipe Young's modulus, psi
+            f_pre (int or float): pre-loading force applied to the casing string if necessary, kN
+
+        Returns:
+            None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
+        """
+
+        from .load_cases import cementing
+
+        e = convert_unit(e, unit_from='psi', unit_to='bar')
+
+        axial_force, pressure_differential = cementing(self.trajectory, self.nominal_weight, self.od, self.id,
+                                                       rho_cement, rho_fluid, e, f_pre)
+
+        pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
+
+        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
+
+        self.csg_loads.append(
+            ["Cementing", axial_force, pressure_differential]
+        )
+
     def add_trajectory(self, trajectory):
 
         trajectory.md = [x for x in trajectory.md if x <= self.shoe_depth]

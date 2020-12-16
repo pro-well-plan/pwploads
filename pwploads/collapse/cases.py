@@ -17,7 +17,7 @@ def plug_cementation_onefluid_behindcasing(tvd, rho_fluid, rho_mud):
     p_int = inside_full(tvd, rho_fluid)
     p_ext = onefluid_behindcasing(tvd, rho_mud)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 
