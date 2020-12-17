@@ -215,6 +215,8 @@ class Casing(object):
         Run load case: Displacement to gas
 
         Keyword Arguments:
+            :param p_res: reservoir pressure, psi
+            :param tvd_res: tvd at reservoir, m
             rho_gas (float): gas density, sg
             rho_mud (float): mud density, sg
             e (int): pipe Young's modulus, psi
@@ -225,6 +227,7 @@ class Casing(object):
 
         from .load_cases import gas_filled
 
+        p_res = convert_unit(p_res, unit_from='psi', unit_to='bar')
         e = convert_unit(e, unit_from='psi', unit_to='bar')
 
         axial_force, pressure_differential = gas_filled(self.trajectory, self.nominal_weight, self.od, self.id,
