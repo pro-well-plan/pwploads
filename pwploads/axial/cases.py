@@ -60,6 +60,29 @@ def pulling(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, r
     return force
 
 
+def fluid_filled(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_fluid_ext, rho_fluid_int, e):
+    """
+    Calculate axial load when casing is filled with a specific fluid.
+    :param trajectory: wellpath object
+    :param tvd: list - true vertical depth, m
+    :param nominal_weight: weight per unit length, kg/m
+    :param od_csg: pipe outer diameter, in
+    :param id_csg: pipe inner diameter, in
+    :param rho_fluid_ext: list - downwards sorted fluids densities outside, sg
+    :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
+    :param e: pipe Young's modulus, bar
+    :return: total axial force profile, kN
+    """
+
+    f_w = air_weight(tvd, nominal_weight)
+    f_bu = buoyancy_force(tvd, od_csg, id_csg, [], [rho_fluid_ext], [], [rho_fluid_int])
+    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
+
+    force = [x1 - x2 + x3 for x1, x2, x3 in zip(f_w, f_bu, f_be)]
+
+    return force
+
+
 def cementation(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid, e, f_pre=0):
     """
     Calculate axial load during cementing

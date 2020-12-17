@@ -164,9 +164,9 @@ def production_with_packer_and_depletedzone(tvd, rho_fluid, rho_mud, p_res, tvd_
     return pressure_differential
 
 
-def production_without_packer(tvd, p_res, rho_gas, tvd_res, rho_mud):
+def gas_filled(tvd, p_res, rho_gas, tvd_res, rho_mud):
     """
-    Calculate differential pressure profile during production without packer.
+    Calculate differential pressure profile when the entire casing string is filled with gas.
     :param tvd: list - true vertical depth, m
     :param p_res: reservoir pressure, bar
     :param rho_gas: gas density, sg
@@ -181,7 +181,7 @@ def production_without_packer(tvd, p_res, rho_gas, tvd_res, rho_mud):
     p_int = displacement_to_gas(tvd, p_res, rho_gas, tvd_res)
     p_ext = onefluid_behindcasing(tvd, rho_mud)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 

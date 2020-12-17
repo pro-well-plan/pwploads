@@ -183,7 +183,7 @@ class Casing(object):
 
     def cementing(self, rho_cement=1.8, rho_fluid=1.3, e=29e6, f_pre=0):
         """
-        Run load case: Green Cement Pressure test
+        Run load case: Cementing
 
         Keyword Arguments:
             rho_cement (float): cement density, sg
@@ -208,6 +208,34 @@ class Casing(object):
 
         self.csg_loads.append(
             ["Cementing", axial_force, pressure_differential]
+        )
+
+    def displacement_gas(self, p_res, tvd_res, rho_gas=0.5, rho_mud=1.4, e=29e6):
+        """
+        Run load case: Displacement to gas
+
+        Keyword Arguments:
+            rho_gas (float): gas density, sg
+            rho_mud (float): mud density, sg
+            e (int): pipe Young's modulus, psi
+
+        Returns:
+            None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
+        """
+
+        from .load_cases import gas_filled
+
+        e = convert_unit(e, unit_from='psi', unit_to='bar')
+
+        axial_force, pressure_differential = gas_filled(self.trajectory, self.nominal_weight, self.od, self.id,
+                                                        rho_mud, rho_gas, p_res, tvd_res, e)
+
+        pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
+
+        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
+
+        self.csg_loads.append(
+            ["Displacement to gas", axial_force, pressure_differential]
         )
 
     def add_trajectory(self, trajectory):

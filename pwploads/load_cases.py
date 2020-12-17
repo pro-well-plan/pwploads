@@ -103,6 +103,29 @@ def cementing(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid,
     return axial_force, pressure_differential
 
 
+def gas_filled(trajectory, nominal_weight, od_csg, id_csg, rho_mud, rho_gas, p_res, tvd_res, e):
+    """
+    Load case: Displacement to gas
+    :param trajectory: wellpath object
+    :param nominal_weight: weight per unit length, kg/m
+    :param od_csg: pipe outer diameter, in
+    :param id_csg: pipe inner diameter, in
+    :param rho_mud: mud density, sg
+    :param rho_gas: gas density, sg
+    :param p_res: reservoir pressure, bar
+    :param tvd_res: tvd at reservoir, m
+    :param e: pipe Young's modulus, bar
+    :return: total axial force profile [kN] and pressure difference [psi]
+    """
+
+    tvd = trajectory.tvd
+    axial_force = axial.fluid_filled(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_mud, rho_gas, e)
+
+    pressure_differential = burst.gas_filled(tvd, p_res, rho_gas, tvd_res, rho_mud)
+
+    return axial_force, pressure_differential
+
+
 def production_with_packer(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, tvd,
                            rho_fluid, rho_mud, p_res, tvd_perf, rho_packerfluid, tvd_packer, poisson=0.3,
                            f_setting=0):
@@ -130,15 +153,15 @@ def production_with_packer_depleted_zone(md, md_toc, od_csg, id_csg, delta_rho_i
     return axial_force, pressure_differential
 
 
-def production_without_packer(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, tvd, p_res,
-                              rho_gas, tvd_res, rho_mud, poisson=0.3, f_setting=0):
+"""def production_without_packer(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, tvd, 
+                            p_res, rho_gas, tvd_res, rho_mud, poisson=0.3, f_setting=0):
 
     axial_force = axial.production(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
                                    poisson, f_setting)
 
     pressure_differential = burst.production_without_packer(tvd, p_res, rho_gas, tvd_res, rho_mud)
 
-    return axial_force, pressure_differential
+    return axial_force, pressure_differential"""
 
 
 def production_without_packer_depleted_zone(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i,
