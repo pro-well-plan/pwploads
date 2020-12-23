@@ -22,7 +22,9 @@ And also some keyword arguments:
 
 .. code-block:: python
 
-    >>> casing = pwploads.Casing(8, 7.2, 1500, nominal_weight=100, yield_s=80000, df_burst=1.1, df_collapse=1.1, df_tension=1.3, df_compression=1.3, df_vme=1.25)
+    >>> casing = pwploads.Casing(8, 7.2, 1500, nominal_weight=100, yield_s=80000, df_burst=1.1,
+    >>>                          df_collapse=1.1, df_tension=1.3, df_compression=1.3, df_vme=1.25,
+    >>>                          df_conn_compression=1.0, df_conn_tension=1.0)
 
 Now it is time to create or load a trajectory using `well_profile`_.
 
