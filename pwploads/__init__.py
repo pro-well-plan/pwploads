@@ -217,9 +217,9 @@ class Casing(object):
         Keyword Arguments:
             :param p_res: reservoir pressure, psi
             :param tvd_res: tvd at reservoir, m
-            rho_gas (float): gas density, sg
-            rho_mud (float): mud density, sg
-            e (int): pipe Young's modulus, psi
+            :param rho_gas: (float) gas density, sg
+            :param rho_mud: (float) mud density, sg
+            :param e: (int) pipe Young's modulus, psi
 
         Returns:
             None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]

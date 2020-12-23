@@ -14,7 +14,7 @@ of course.
 
 The class `pwploads.Casing()` is used to :ref:`create a casing object <create_casing>`. It has three positional arguments as follows:
 
-    * `pwploads.Casing(outer diameter [in], inner diameter [in], length[m])`
+    * `pwploads.Casing(outer diameter [in], inner diameter [in], length [m])`
 
 And also some keyword arguments:
 
@@ -35,9 +35,11 @@ Then just :ref:`add the load cases <add_loads>` you want to include.
 
 .. code-block:: python
 
-    >>> casing.overpull(tvd_fluid=[500], rho_fluid=[1.2, 1.5], v_avg=0.3, e=32e6, fric=0.24, a=1.5, f_ov=0)
-    >>> casing.running(tvd_fluid=[500], rho_fluid=[1.2, 1.5], v_avg=0.3, e=32e6, fric=0.24, a=1.5)
+    >>> casing.overpull(tvd_fluid=[500], rho_fluid=[1.2, 1.5], v_avg=0.3, e=29e6, fric=0.24, a=1.5, f_ov=0)
+    >>> casing.running(tvd_fluid=[500], rho_fluid=[1.2, 1.5], v_avg=0.3, e=29e6, fric=0.24, a=1.5)
     >>> casing.green_cement(tvd_fluid_int=[500], rho_fluid_int=[1.2, 1.5], rho_cement=1.8, p_test=4472.65, f_pre=0)
+    >>> casing.cementing(rho_cement=1.8, rho_fluid=1.3, e=29e6, f_pre=0)
+    >>> casing.displacement_gas(p_res=5800, tvd_res=2000, rho_gas=0.5, rho_mud=1.2, e=29e6)
 
 Finally, generate a plot using pyplot from `matplotlib`_. Notice that `plotly`_ is also an option (and it is used by default)
 
@@ -48,7 +50,7 @@ Finally, generate a plot using pyplot from `matplotlib`_. Notice that `plotly`_ 
 |casing_with_loads|
 
 .. |casing_with_loads| image:: /figures/casing_all_loads.png
-                       :scale: 40%
+                       :scale: 80%
 
 Web Application
 ---------------
