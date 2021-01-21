@@ -49,6 +49,6 @@ Example
 |casing_with_loads|
 
 .. |casing_with_loads| image:: /figures/casing_all_loads.png
-                       :scale: 40%
+                       :scale: 80%
 
 .. _well_profile: https://pypi.org/project/well-profile/

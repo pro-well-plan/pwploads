@@ -150,37 +150,29 @@ def thermal_load(od_csg, id_csg, t_k, t_o, alpha, e):
     return f_th
 
 
-''' This function needs to be checked!
-def ballooning(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, poisson=0.3):
+def ballooning(md, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, poisson=0.3):
     """
     Calculate axial force due to balloning
     :param md: list - measured depth, m
     :param md_toc: md at top of cement, m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
-    :param delta_rho_i: density change of fluid in the casing string after installation
-    :param delta_rho_a: density change of annular fluid after installation
-    :param e: pipe Young's modulus, bar
-    :param delta_p_i: pressure change of fluid in the casing string after installation
-    :param delta_p_a: pressure change of annular fluid after installation
+    :param rho_fluid_int: fluid density in the casing string after installation
+    :param rho_fluid_ext: density of annular fluid after installation
     :param poisson: Poisson’s ratio
     :return: axial force profile, kN
     """
+    # TODO RECHECK THIS FUNCTION BEFORE INTEGRATING IN cases.py
+    area_i = convert_unit(pi * (id_csg / 2) ** 2, unit_from='in2', unit_to='m2')
+    area_o = convert_unit(pi * (od_csg / 2) ** 2, unit_from='in2', unit_to='m2')
 
-    e = convert_unit(e, unit_from="bar", unit_to="Pa")
-
-    dia_rel = (od_csg/id_csg)**2
-    delta_l = - poisson * (md_toc**2 / e) * ((delta_rho_i - dia_rel * delta_rho_a) / (dia_rel - 1)) -  \
-        2 * poisson * (md_toc / e) * ((delta_p_i - dia_rel * delta_p_a) / (dia_rel - 1))
-
-    area = (pi / 4) * (od_csg ** 2 - id_csg * 2)
-    area = convert_unit(area, unit_from="in2", unit_to="m2")
-    
-    f_bl = [e * area * delta_l / md_toc for x in md if x <= md_toc]
-    f_bl += [0] * (len(md) - len(f_bl))
+    delta_rho_i = rho_fluid_ext - rho_fluid_int
+    delta_rho_a = 0
+    f_bl = [-2 * poisson * ((area_i * delta_rho_i * x - area_o * delta_rho_a * x) * 0.0981) for x in md if x >= md_toc]
+    f_bl = [0] * (len(md) - len(f_bl)) + f_bl
     f_bl = [x / 1000 for x in f_bl]  # N to kN
 
-    return f_bl'''
+    return f_bl
 
 
 def shock_load(tvd, v_avg, od_csg, id_csg, nominal_weight, e, a=1.5):
