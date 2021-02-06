@@ -5,6 +5,7 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Webapp](https://img.shields.io/badge/WebApp-On-green.svg)](https://share.streamlit.io/jcamiloangarita/opensource_apps/app.py)
 [![Documentation Status](https://readthedocs.org/projects/pwploads/badge/?version=latest)](http://pwploads.readthedocs.io/?badge=latest)
+[![Build Status](https://www.travis-ci.com/pro-well-plan/pwploads.svg?branch=master)](https://www.travis-ci.com/pro-well-plan/pwploads)
 [![Downloads](https://pepy.tech/badge/pwploads)](https://pepy.tech/project/pwploads)
 
 ## Introduction
