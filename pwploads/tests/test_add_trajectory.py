@@ -1,10 +1,21 @@
 from unittest import TestCase
 import well_profile as wp
-from test_create_casing import default_casing
+import pwploads
 
 
 def default_casing_with_trajectory():
-    casing = default_casing()
+    csg_od = 8
+    csg_id = 7
+    length = 1500
+
+    casing = pwploads.Casing(csg_od, csg_id, length,
+                             nominal_weight=100,
+                             yield_s=80000,
+                             df_burst=1.1,
+                             df_collapse=1.1,
+                             df_tension=1.3,
+                             df_compression=1.3,
+                             df_vme=1.25)
     trajectory = wp.get(2000, profile='J', build_angle=20, kop=800, eob=1300)
     casing.add_trajectory(trajectory)
 

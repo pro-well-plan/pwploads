@@ -1,7 +1,21 @@
 from unittest import TestCase
-from test_add_trajectory import default_casing_with_trajectory
+import pwploads
+import well_profile as wp
 
-casing = default_casing_with_trajectory()
+csg_od = 8
+csg_id = 7
+length = 1500
+
+casing = pwploads.Casing(csg_od, csg_id, length,
+                         nominal_weight=100,
+                         yield_s=80000,
+                         df_burst=1.1,
+                         df_collapse=1.1,
+                         df_tension=1.3,
+                         df_compression=1.3,
+                         df_vme=1.25)
+trajectory = wp.get(2000, profile='J', build_angle=20, kop=800, eob=1300)
+casing.add_trajectory(trajectory)
 
 casing.green_cement(tvd_fluid_int=[300],    # fluid of 1.2 sg before reaching 300 m depth
                     rho_fluid_int=[1.2, 1.5],
