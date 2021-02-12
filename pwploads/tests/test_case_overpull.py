@@ -27,7 +27,7 @@ casing.overpull(tvd_fluid=[300],    # fluid of 1.2 sg before reaching 300 m dept
 
 
 class TestCasing(TestCase):
-    def test_green_cement(self):
+    def test_overpull(self):
 
         self.assertTrue('Overpull' == casing.csg_loads[0][0], 'Load: Overpull was not included')
-        self.assertEqual(len(casing.csg_loads[0][1]), casing.trajectory.cells_no, 'number os points are not equal')
+        self.assertEqual(len(casing.csg_loads[0][1]), casing.trajectory.cells_no, 'number of points are not equal')
