@@ -122,20 +122,20 @@ def gas_filled(trajectory, nominal_weight, od_csg, id_csg, rho_mud, rho_gas, p_r
     axial_force = axial.fluid_filled(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_mud, rho_gas, e)
 
     pressure_differential = burst.gas_filled(tvd, p_res, rho_gas, tvd_res, rho_mud)
-
+    print(pressure_differential)
     return axial_force, pressure_differential
 
 
-def production_with_packer(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, tvd,
-                           rho_fluid, rho_mud, p_res, tvd_perf, rho_packerfluid, tvd_packer, poisson=0.3,
-                           f_setting=0):
+def production_with_packer(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, e, p_res, tvd_perf,
+                           rho_packerfluid, tvd_packer, poisson=0.3, f_setting=0):
 
-    axial_force = axial.production(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
-                                   poisson, f_setting)
+    axial_force = axial.production(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, e, poisson,
+                                   f_setting)
 
-    pressure_differential = burst.production_with_packer(tvd, rho_fluid, rho_mud, p_res, tvd_perf, rho_packerfluid,
-                                                         tvd_packer)
+    pressure_differential = burst.production_with_packer(trajectory.tvd, rho_fluid_int, rho_fluid_ext, p_res, tvd_perf,
+                                                         rho_packerfluid, tvd_packer)
 
+    print(pressure_differential)
     return axial_force, pressure_differential
 
 

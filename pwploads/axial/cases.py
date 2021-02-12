@@ -134,46 +134,40 @@ def green_cement(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, tv
     return force
 
 
-def production(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, poisson=0.3, f_setting=0):
+def production(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, e, poisson=0.3, f_setting=0):
     """
     Calculate axial load during production
-    :param md: list - measured depth, m
+    :param trajectory: wellpath object
     :param md_toc: md at top of cement, m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
-    :param delta_rho_i: density change of fluid in the casing string after installation
-    :param delta_rho_a: density change of annular fluid after installation
+    :param rho_fluid_int: fluid density in the casing string after installation
+    :param rho_fluid_ext: density of annular fluid after installation
     :param e: pipe Young's modulus, bar
-    :param delta_p_i: pressure change of fluid in the casing string after installation
-    :param delta_p_a: pressure change of annular fluid after installation
     :param poisson: Poisson’s ratio
     :param f_setting: hang off force of the casing string on slips or hangers, kN
     :return: total axial force profile, kN
     """
 
-    # f_bl = ballooning(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, poisson)
-    # f_be --> bending
-    f_bl = [0] * len(md)  # while ballooning load is being checked
+    f_bl = ballooning(trajectory.md, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, poisson)
+    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
 
-    force = [f_setting + x for x in f_bl]
-    # + f_be
+    force = [f_setting + x1 + x2 for x1, x2 in zip(f_bl, f_be)]
 
     return force
 
 
-def injection(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k, t_o, alpha,
-              poisson=0.3, f_setting=0):
+def injection(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, e, t_k, t_o, alpha, poisson=0.3,
+              f_setting=0):
     """
     Calculate axial load during injection
-    :param md: list - measured depth, m
+    :param trajectory: wellpath object
     :param md_toc: md at top of cement, m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
-    :param delta_rho_i: density change of fluid in the casing string after installation
-    :param delta_rho_a: density change of annular fluid after installation
+    :param rho_fluid_int: fluid density in the casing string after installation
+    :param rho_fluid_ext: density of annular fluid after installation
     :param e: pipe Young's modulus, bar
-    :param delta_p_i: pressure change of fluid in the casing string after installation
-    :param delta_p_a: pressure change of annular fluid after installation
     :param t_k: max. wellhead temperature during production, °C
     :param t_o: mean ambient temperature, °C
     :param alpha: thermal expansion coefficient, 1/°C
@@ -185,11 +179,9 @@ def injection(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i
     from .forces import thermal_load
 
     f_th = thermal_load(od_csg, id_csg, t_k, t_o, alpha, e)
-    # f_bl = ballooning(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, poisson)
-    f_bl = [0] * len(f_th)      # while ballooning load is being checked
-    # f_be --> bending
+    f_bl = ballooning(trajectory.md, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, poisson)
+    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
 
-    force = [f_setting + x1 + x2 for x1, x2 in zip(f_bl, f_th)]
-    # + f_be
+    force = [f_setting + x1 + x2 + x3 for x1, x2, x3 in zip(f_bl, f_th, f_be)]
 
     return force

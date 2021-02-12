@@ -241,6 +241,26 @@ class Casing(object):
             ["Displacement to gas", axial_force, pressure_differential]
         )
 
+    def production(self, p_res, rho_prod_fluid, rho_ann_fluid, rho_packerfluid, md_toc, tvd_packer, tvd_perf, e=29e6,
+                   poisson=0.3, f_setting=0):
+
+        from .load_cases import production_with_packer
+
+        p_res = convert_unit(p_res, unit_from='psi', unit_to='bar')
+        e = convert_unit(e, unit_from='psi', unit_to='bar')
+
+        axial_force, pressure_differential = production_with_packer(self.trajectory, md_toc, self.od, self.id,
+                                                                    rho_prod_fluid, rho_ann_fluid, e, p_res, tvd_perf,
+                                                                    rho_packerfluid, tvd_packer, poisson, f_setting)
+
+        pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
+
+        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
+
+        self.csg_loads.append(
+            ["Production", axial_force, pressure_differential]
+        )
+
     def add_trajectory(self, trajectory):
 
         trajectory.md = [x for x in trajectory.md if x <= self.shoe_depth]
