@@ -162,7 +162,7 @@ def ballooning(md, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, poisson
     :param poisson: Poisson’s ratio
     :return: axial force profile, kN
     """
-    # TODO RECHECK THIS FUNCTION BEFORE INTEGRATING IN cases.py
+
     area_i = convert_unit(pi * (id_csg / 2) ** 2, unit_from='in2', unit_to='m2')
     area_o = convert_unit(pi * (od_csg / 2) ** 2, unit_from='in2', unit_to='m2')
 
