@@ -1,5 +1,5 @@
 numpy
 matplotlib
 plotly
-torque_drag
-well_profile
+torque_drag==0.0.8
+well_profile==0.5.0

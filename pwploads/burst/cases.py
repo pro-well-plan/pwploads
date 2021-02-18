@@ -132,7 +132,7 @@ def production_with_packer(tvd, rho_fluid, rho_mud, p_res, tvd_perf, rho_packerf
     p_int = tubing_leak(tvd, p_res, rho_fluid, tvd_perf, rho_packerfluid, tvd_packer, rho_mud)
     p_ext = onefluid_behindcasing(tvd, rho_mud)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 

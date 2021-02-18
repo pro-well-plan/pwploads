@@ -72,7 +72,7 @@ def create_plotly_figure(self):
         fig.add_trace(go.Scatter(x=array(x[1]) / 1000, y=array(x[2]) / 1000, name=x[0]))
 
     fig.update_layout(
-        xaxis_title='Axial Force, klb-f',
+        xaxis_title='Axial Force, kips',
         yaxis_title='Pressure Difference, ksi')
 
     return fig

@@ -6,14 +6,17 @@ csg_od = 8
 csg_id = 7
 length = 1500
 
-casing = pwploads.Casing(csg_od, csg_id, length,
-                         nominal_weight=100,
-                         yield_s=80000,
-                         df_burst=1.1,
-                         df_collapse=1.1,
-                         df_tension=1.3,
-                         df_compression=1.3,
-                         df_vme=1.25)
+pipe = {'od': 8,
+        'id': 7.2,
+        'shoeDepth': 1500,
+        'tocMd': 1000,
+        'weight': 100,
+        'yield': 80000,
+        'e': 29e6}
+df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1, 'triaxial': 1.25},
+      'connection': {'tension': 1.0, 'compression': 1.0}}
+
+casing = pwploads.Casing(pipe, factors=df)
 trajectory = wp.get(2000, profile='J', build_angle=20, kop=800, eob=1300)
 casing.add_trajectory(trajectory)
 
@@ -28,4 +31,3 @@ class TestCasing(TestCase):
     def test_green_cement(self):
 
         self.assertTrue('Green Cement' == casing.csg_loads[0][0], 'Load: Green cement was not included')
-        self.assertEqual(len(casing.csg_loads[0][1]), casing.trajectory.cells_no, 'number of points are not equal')
