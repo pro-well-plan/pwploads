@@ -11,14 +11,8 @@ class Casing(object):
     Casing object.
 
     Arguments:
-        od_csg (outer diameter, float or int): casing outer diameter [in].
-        id_csg (inner diameter, float or int): casing inner diameter [in].
-        shoe_depth (depth at shoe, float or int): measured depth at shoe [m].
-
-    Keyword Arguments:
-        nominal_weight (nominal weight, float or int): weight per unit length [kg/m].
-        yield_s (yield strength, int): pipe's yield strength [psi].
-        design_factors (dict): set define factors for pipe and connection.
+        pipe (dict): set the main pipe characteristics. 'od', 'id', 'shoeDepth', 'weight'(opt), 'yield'(opt)
+        factors (dict): set define factors for pipe and connection.
 
     Attributes:
         od (float): outer diameter of the casing [in]
@@ -35,22 +29,33 @@ class Casing(object):
         design_factor (dict): design factors used 'vme', 'api_compression', 'api_tension', 'api_burst', 'api_collapse'
     """
 
-    def __init__(self, od_csg, id_csg, shoe_depth, nominal_weight=64, yield_s=80000, conn_compression=0.6,
-                 conn_tension=0.6, design_factors=None):
+    def __init__(self, pipe, conn_compression=0.6,
+                 conn_tension=0.6, factors=None):
 
         df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1, 'triaxial': 1.25},
               'connection': {'tension': 1.0, 'compression': 1.0}}
 
-        if type(design_factors) == dict:
-            for key in design_factors.keys():
-                for item in design_factors[key].keys():
-                    df[key][item] = design_factors[key][item]
+        if type(factors) == dict:
+            for key in factors.keys():
+                for item in factors[key].keys():
+                    df[key][item] = factors[key][item]
 
-        self.od = od_csg
-        self.id = id_csg
+        self.od = pipe['od']
+        self.id = pipe['id']
         self.area = (pi / 4) * (self.od ** 2 - self.id ** 2)
         self.thickness = (self.od - self.id) / 2
         self.dt = self.od / self.thickness
+
+        if 'yield' in pipe:
+            yield_s = pipe['yield']
+        else:
+            yield_s = 80000
+
+        if 'weight' in pipe:
+            self.nominal_weight = pipe['weight']
+        else:
+            self.nominal_weight = 64
+
         self.limits = {'burst': 0.875 * 2 * yield_s * self.thickness / self.od,
                        'burst_df': 0.875 * 2 * yield_s * self.thickness / self.od / df['pipe']['burst'],
                        'collapse': - calc_collapse_pressure(self.dt, yield_s),
@@ -60,10 +65,9 @@ class Casing(object):
                        'tension': yield_s * self.area,
                        'tension_df': yield_s * self.area / df['pipe']['tension']}
 
-        self.shoe_depth = shoe_depth
+        self.shoe_depth = pipe['shoeDepth']
         self.ellipse = vme(yield_s, self.area, self.id, self.od, df['pipe']['triaxial'])
         self.csg_loads = []
-        self.nominal_weight = nominal_weight
         self.trajectory = None
         self.api_lines, self.collapse_curve = api_limits(self.dt, yield_s, self.limits, self.area,
                                                          df['pipe']['tension'],
