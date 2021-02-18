@@ -11,7 +11,8 @@ class Casing(object):
     Casing object.
 
     Arguments:
-        pipe (dict): set the main pipe characteristics. 'od', 'id', 'shoeDepth', 'weight'(opt), 'yield'(opt), 'e'(opt)
+        pipe (dict): set the main pipe characteristics. 'od', 'id', 'shoeDepth', 'tocMd', 'weight'(opt), 'yield'(opt),
+                     'e'(opt)
         factors (dict): set define factors for pipe and connection.
 
     Attributes:
@@ -45,6 +46,7 @@ class Casing(object):
         self.area = (pi / 4) * (self.od ** 2 - self.id ** 2)
         self.thickness = (self.od - self.id) / 2
         self.dt = self.od / self.thickness
+        self.toc_md = pipe['tocMd']
 
         if 'yield' in pipe:
             yield_s = pipe['yield']
@@ -121,7 +123,7 @@ class Casing(object):
             ["Running", axial_force, pressure_differential]
         )
 
-    def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5, f_ov=0):
+    def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5, f_ov=0.0):
         """
         Run load case: Overpull
 
@@ -155,7 +157,7 @@ class Casing(object):
             ["Overpull", axial_force, pressure_differential]
         )
 
-    def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8, f_pre=0, p_test=0):
+    def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8, f_pre=0.0, p_test=0.0):
         """
         Run load case: Green Cement Pressure test
 
@@ -194,7 +196,7 @@ class Casing(object):
             ["Green Cement", axial_force, pressure_differential]
         )
 
-    def cementing(self, rho_cement=1.8, rho_fluid=1.3, f_pre=0):
+    def cementing(self, rho_cement=1.8, rho_fluid=1.3, f_pre=0.0):
         """
         Run load case: Cementing
 
@@ -231,7 +233,6 @@ class Casing(object):
             :param tvd_res: tvd at reservoir, m
             :param rho_gas: (float) gas density, sg
             :param rho_mud: (float) mud density, sg
-            :param e: (int) pipe Young's modulus, psi
 
         Returns:
             None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
@@ -254,7 +255,7 @@ class Casing(object):
         )
 
     def production(self, p_res, rho_prod_fluid, rho_ann_fluid, rho_packerfluid, md_toc, tvd_packer, tvd_perf,
-                   poisson=0.3, f_setting=0):
+                   poisson=0.3, f_setting=0.0):
 
         from .load_cases import production_with_packer
 
@@ -290,3 +291,33 @@ class Casing(object):
             fig = create_pyplot_figure(self)
 
         return fig
+    
+    def run_loads(self, settings):
+
+        self.overpull(rho_fluid=[settings['densities']['mud']], v_avg=settings['tripping']['speed'],
+                      fric=settings['tripping']['slidingFriction'], a=settings['tripping']['maxSpeedRatio'],
+                      f_ov=int(settings['forces']['overpull']))
+
+        self.running(rho_fluid=[settings['densities']['mud']], v_avg=settings['tripping']['speed'],
+                     fric=settings['tripping']['slidingFriction'], a=settings['tripping']['maxSpeedRatio'])
+
+        self.green_cement(rho_fluid_int=[settings['densities']['cementDisplacingFluid']],
+                          rho_cement=settings['densities']['cement'], f_pre=settings['forces']['preloading'],
+                          p_test=settings['testing']['cementingPressure'])
+
+        self.cementing(rho_cement=settings['densities']['cement'],
+                       rho_fluid=settings['densities']['cementDisplacingFluid'],
+                       f_pre=settings['forces']['preloading'])
+
+        self.displacement_gas(p_res=settings['production']['resPressure'], tvd_res=settings['production']['resTvd'],
+                              rho_gas=settings['densities']['gasKick'], rho_mud=settings['densities']['mud'])
+
+        self.production(p_res=settings['production']['resPressure'],
+                        rho_prod_fluid=settings['production']['fluidDensity'],
+                        rho_ann_fluid=settings['densities']['completionFluid'],
+                        rho_packerfluid=settings['production']['packerFluidDensity'],
+                        md_toc=self.toc_md,
+                        tvd_packer=settings['production']['packerTvd'],
+                        tvd_perf=settings['production']['perforationsTvd'],
+                        poisson=settings['production']['poisson'],
+                        f_setting=settings['forces']['preloading'])
