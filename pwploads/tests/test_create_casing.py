@@ -3,18 +3,12 @@ from unittest import TestCase
 
 
 def default_casing():
-    csg_od = 8
-    csg_id = 7
-    length = 1500
+    pipe = {'od': 8,
+            'id': 7.2,
+            'shoeDepth': 1500,
+            'tocMd': 1000}
 
-    casing = pwploads.Casing(csg_od, csg_id, length,
-                             nominal_weight=100,
-                             yield_s=80000,
-                             df_burst=1.1,
-                             df_collapse=1.1,
-                             df_tension=1.3,
-                             df_compression=1.3,
-                             df_vme=1.25)
+    casing = pwploads.Casing(pipe)
 
     return casing
 
@@ -25,7 +19,7 @@ class TestCasing(TestCase):
         casing = default_casing()
         self.assertIsInstance(casing, object, 'casing is not an object')
         self.assertEqual(casing.od, 8, 'outer diameter has been changed')
-        self.assertEqual(casing.id, 7, 'inner diameter has been changed')
+        self.assertEqual(casing.id, 7.2, 'inner diameter has been changed')
         self.assertIsInstance(casing.area, (float, int), 'area is not a number')
         self.assertTrue(casing.area < 20, 'the effective area is too high')
         self.assertIsInstance(casing.ellipse, list, 'triaxial ellipse is not a list')
