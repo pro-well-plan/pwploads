@@ -11,7 +11,7 @@ class Casing(object):
     Casing object.
 
     Arguments:
-        pipe (dict): set the main pipe characteristics. 'od', 'id', 'shoeDepth', 'weight'(opt), 'yield'(opt)
+        pipe (dict): set the main pipe characteristics. 'od', 'id', 'shoeDepth', 'weight'(opt), 'yield'(opt), 'e'(opt)
         factors (dict): set define factors for pipe and connection.
 
     Attributes:
@@ -56,6 +56,11 @@ class Casing(object):
         else:
             self.nominal_weight = 64
 
+        if 'e' in pipe:
+            self.e = pipe['e']
+        else:
+            self.e = 29e6
+
         self.limits = {'burst': 0.875 * 2 * yield_s * self.thickness / self.od,
                        'burst_df': 0.875 * 2 * yield_s * self.thickness / self.od / df['pipe']['burst'],
                        'collapse': - calc_collapse_pressure(self.dt, yield_s),
@@ -83,7 +88,7 @@ class Casing(object):
                               'api_burst': df['pipe']['burst'],
                               'api_collapse': df['pipe']['collapse']}
 
-    def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=29e6, fric=0.24, a=1.5):
+    def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5):
         """
         Run load case: Running in hole
 
@@ -91,7 +96,6 @@ class Casing(object):
             tvd_fluid (list or None): reference tvd of fluid change
             rho_fluid (list or None): downwards sorted fluids densities
             v_avg (float): average running speed, m/s
-            e (int): pipe Young's modulus, psi
             fric (float): sliding friction factor pipe - wellbore
             a (float): ratio of maximum running speed to average running speed
 
@@ -106,7 +110,7 @@ class Casing(object):
         if rho_fluid is None:
             rho_fluid = [1.2]
 
-        e = convert_unit(e, unit_from='psi', unit_to='bar')
+        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
 
         axial_force, pressure_differential = running(self.trajectory, self.nominal_weight, self.od, self.id,
                                                      self.shoe_depth, tvd_fluid, rho_fluid, v_avg, e, fric, a)
@@ -117,7 +121,7 @@ class Casing(object):
             ["Running", axial_force, pressure_differential]
         )
 
-    def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=29e6, fric=0.24, a=1.5, f_ov=0):
+    def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5, f_ov=0):
         """
         Run load case: Overpull
 
@@ -125,7 +129,6 @@ class Casing(object):
             tvd_fluid (list or None): reference tvd of fluid change
             rho_fluid (list or None): downwards sorted fluids densities
             v_avg (float): average running speed, m/s
-            e (int): pipe Young's modulus, psi
             fric (float): sliding friction factor pipe - wellbore
             a (float): ratio of maximum running speed to average running speed
             f_ov (int or float): overpull force (often during freeing of stuck pipe), kN.
@@ -141,7 +144,7 @@ class Casing(object):
         if rho_fluid is None:
             rho_fluid = [1.2]
 
-        e = convert_unit(e, unit_from='psi', unit_to='bar')
+        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
 
         axial_force, pressure_differential = overpull(self.trajectory, self.nominal_weight, self.od, self.id,
                                                       self.shoe_depth, tvd_fluid, rho_fluid, v_avg, e, fric, a, f_ov)
@@ -152,13 +155,12 @@ class Casing(object):
             ["Overpull", axial_force, pressure_differential]
         )
 
-    def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8, e=29e6, f_pre=0, p_test=0):
+    def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8, f_pre=0, p_test=0):
         """
         Run load case: Green Cement Pressure test
 
         Keyword Arguments:
             rho_cement (float): cement density, sg
-            e (int): pipe Young's modulus, psi
             tvd_fluid_int (list or None): reference tvd of fluid change inside, m
             rho_fluid_int (list or None): downwards sorted fluids densities inside, sg
             f_pre (int or float): pre-loading force applied to the casing string if necessary, kN
@@ -178,7 +180,7 @@ class Casing(object):
         tvd = self.trajectory.tvd
         f_test = convert_unit(p_test * self.area, unit_from="lbf", unit_to="kN")
         p_test = convert_unit(p_test, unit_from="psi", unit_to="bar")
-        e = convert_unit(e, unit_from='psi', unit_to='bar')
+        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
 
         axial_force, pressure_differential = green_cement_pressure_test(self.trajectory, tvd, self.nominal_weight,
                                                                         self.od, self.id, rho_cement, tvd_fluid_int,
@@ -192,14 +194,13 @@ class Casing(object):
             ["Green Cement", axial_force, pressure_differential]
         )
 
-    def cementing(self, rho_cement=1.8, rho_fluid=1.3, e=29e6, f_pre=0):
+    def cementing(self, rho_cement=1.8, rho_fluid=1.3, f_pre=0):
         """
         Run load case: Cementing
 
         Keyword Arguments:
             rho_cement (float): cement density, sg
             rho_fluid (float): displacement fluid density, sg
-            e (int): pipe Young's modulus, psi
             f_pre (int or float): pre-loading force applied to the casing string if necessary, kN
 
         Returns:
@@ -208,7 +209,7 @@ class Casing(object):
 
         from .load_cases import cementing
 
-        e = convert_unit(e, unit_from='psi', unit_to='bar')
+        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
 
         axial_force, pressure_differential = cementing(self.trajectory, self.nominal_weight, self.od, self.id,
                                                        rho_cement, rho_fluid, e, f_pre)
@@ -221,7 +222,7 @@ class Casing(object):
             ["Cementing", axial_force, pressure_differential]
         )
 
-    def displacement_gas(self, p_res, tvd_res, rho_gas=0.5, rho_mud=1.4, e=29e6):
+    def displacement_gas(self, p_res, tvd_res, rho_gas=0.5, rho_mud=1.4):
         """
         Run load case: Displacement to gas
 
@@ -239,7 +240,7 @@ class Casing(object):
         from .load_cases import gas_filled
 
         p_res = convert_unit(p_res, unit_from='psi', unit_to='bar')
-        e = convert_unit(e, unit_from='psi', unit_to='bar')
+        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
 
         axial_force, pressure_differential = gas_filled(self.trajectory, self.nominal_weight, self.od, self.id,
                                                         rho_mud, rho_gas, p_res, tvd_res, e)
@@ -252,13 +253,13 @@ class Casing(object):
             ["Displacement to gas", axial_force, pressure_differential]
         )
 
-    def production(self, p_res, rho_prod_fluid, rho_ann_fluid, rho_packerfluid, md_toc, tvd_packer, tvd_perf, e=29e6,
+    def production(self, p_res, rho_prod_fluid, rho_ann_fluid, rho_packerfluid, md_toc, tvd_packer, tvd_perf,
                    poisson=0.3, f_setting=0):
 
         from .load_cases import production_with_packer
 
         p_res = convert_unit(p_res, unit_from='psi', unit_to='bar')
-        e = convert_unit(e, unit_from='psi', unit_to='bar')
+        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
 
         axial_force, pressure_differential = production_with_packer(self.trajectory, md_toc, self.od, self.id,
                                                                     rho_prod_fluid, rho_ann_fluid, e, p_res, tvd_perf,
