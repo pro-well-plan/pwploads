@@ -18,11 +18,7 @@ class Casing(object):
     Keyword Arguments:
         nominal_weight (nominal weight, float or int): weight per unit length [kg/m].
         yield_s (yield strength, int): pipe's yield strength [psi].
-        df_tension (design factor - tension, float): API design factor for tension.
-        df_compression (design factor - compression, float): API design factor for compression.
-        df_burst (design factor - burst, float): API design factor for burst.
-        df_collapse (design factor - collapse, float): API design factor for collapse.
-        df_vme (design factor - Von Mises, float): design factor for triaxial.
+        design_factors (dict): set define factors for pipe and connection.
 
     Attributes:
         od (float): outer diameter of the casing [in]
@@ -39,9 +35,16 @@ class Casing(object):
         design_factor (dict): design factors used 'vme', 'api_compression', 'api_tension', 'api_burst', 'api_collapse'
     """
 
-    def __init__(self, od_csg, id_csg, shoe_depth, nominal_weight=64, yield_s=80000, df_tension=1.1,
-                 df_compression=1.1, df_burst=1.1, df_collapse=1.1, df_vme=1.25, conn_compression=0.6,
-                 conn_tension=0.6, df_conn_compression=1.0, df_conn_tension=1.0):
+    def __init__(self, od_csg, id_csg, shoe_depth, nominal_weight=64, yield_s=80000, conn_compression=0.6,
+                 conn_tension=0.6, design_factors=None):
+
+        df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1, 'triaxial': 1.25},
+              'connection': {'tension': 1.0, 'compression': 1.0}}
+
+        if type(design_factors) == dict:
+            for key in design_factors.keys():
+                for item in design_factors[key].keys():
+                    df[key][item] = design_factors[key][item]
 
         self.od = od_csg
         self.id = id_csg
@@ -49,28 +52,32 @@ class Casing(object):
         self.thickness = (self.od - self.id) / 2
         self.dt = self.od / self.thickness
         self.limits = {'burst': 0.875 * 2 * yield_s * self.thickness / self.od,
-                       'burst_df': 0.875 * 2 * yield_s * self.thickness / self.od / df_burst,
+                       'burst_df': 0.875 * 2 * yield_s * self.thickness / self.od / df['pipe']['burst'],
                        'collapse': - calc_collapse_pressure(self.dt, yield_s),
-                       'collapse_df': - calc_collapse_pressure(self.dt, yield_s) / df_collapse,
+                       'collapse_df': - calc_collapse_pressure(self.dt, yield_s) / df['pipe']['collapse'],
                        'compression': - yield_s * self.area,
-                       'compression_df': - yield_s * self.area / df_compression,
+                       'compression_df': - yield_s * self.area / df['pipe']['compression'],
                        'tension': yield_s * self.area,
-                       'tension_df': yield_s * self.area / df_tension}
+                       'tension_df': yield_s * self.area / df['pipe']['tension']}
 
         self.shoe_depth = shoe_depth
-        self.ellipse = vme(yield_s, self.area, self.id, self.od, df_vme)
+        self.ellipse = vme(yield_s, self.area, self.id, self.od, df['pipe']['triaxial'])
         self.csg_loads = []
         self.nominal_weight = nominal_weight
         self.trajectory = None
-        self.api_lines, self.collapse_curve = api_limits(self.dt, yield_s, self.limits, self.area, df_tension,
-                                                         df_compression, df_burst, df_collapse)
+        self.api_lines, self.collapse_curve = api_limits(self.dt, yield_s, self.limits, self.area,
+                                                         df['pipe']['tension'],
+                                                         df['pipe']['compression'],
+                                                         df['pipe']['burst'],
+                                                         df['pipe']['collapse'])
         self.conn_limits = get_conn_limits(self.limits, conn_compression, conn_tension,
-                                           df_conn_compression, df_conn_tension)
-        self.design_factor = {'vme': df_vme,
-                              'api_compression': df_compression,
-                              'api_tension': df_tension,
-                              'api_burst': df_burst,
-                              'api_collapse': df_collapse}
+                                           df['connection']['compression'],
+                                           df['connection']['tension'])
+        self.design_factor = {'vme': df['pipe']['triaxial'],
+                              'api_compression': df['pipe']['compression'],
+                              'api_tension': df['pipe']['tension'],
+                              'api_burst': df['pipe']['burst'],
+                              'api_collapse': df['pipe']['collapse']}
 
     def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, e=29e6, fric=0.24, a=1.5):
         """
