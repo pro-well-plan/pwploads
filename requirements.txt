@@ -2,4 +2,4 @@ numpy
 matplotlib
 plotly
 torque_drag
-well_profile
+well_profile==0.5.0

@@ -261,14 +261,14 @@ class Casing(object):
             ["Production", axial_force, pressure_differential]
         )
 
-    def add_trajectory(self, trajectory):
+    def add_trajectory(self, wellbore):
 
-        trajectory.md = [x for x in trajectory.md if x <= self.shoe_depth]
-        trajectory.cells_no = len(trajectory.md)
-        trajectory.tvd = trajectory.tvd[:trajectory.cells_no]
-        trajectory.inclination = trajectory.inclination[:trajectory.cells_no]
-
-        self.trajectory = trajectory
+        wellbore.md = [x['md'] for x in wellbore.trajectory if x['md'] <= self.shoe_depth]
+        wellbore.tvd = [x['tvd'] for x in wellbore.trajectory][:len(wellbore.md)]
+        wellbore.inclination = [x['inc'] for x in wellbore.trajectory][:len(wellbore.md)]
+        wellbore.azimuth = [x['azi'] for x in wellbore.trajectory][:len(wellbore.md)]
+        wellbore.dls = [x['dls'] for x in wellbore.trajectory][:len(wellbore.md)]
+        self.trajectory = wellbore
 
     def plot(self, plot_type='plotly'):
         from .plot import create_plotly_figure, create_pyplot_figure
