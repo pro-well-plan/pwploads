@@ -76,6 +76,8 @@ class Casing(object):
         self.ellipse = vme(yield_s, self.area, self.id, self.od, df['pipe']['triaxial'])
         self.csg_loads = []
         self.trajectory = None
+        self.settings = None
+        self.msgs = None
         self.api_lines, self.collapse_curve = api_limits(self.dt, yield_s, self.limits, self.area,
                                                          df['pipe']['tension'],
                                                          df['pipe']['compression'],
@@ -292,7 +294,12 @@ class Casing(object):
 
         return fig
     
-    def run_loads(self, settings):
+    def run_loads(self, settings=None):
+
+        if self.settings is None:
+            self.define_settings(settings)
+
+        gen_msgs(self)
 
         self.overpull(rho_fluid=[settings['densities']['mud']], v_avg=settings['tripping']['speed'],
                       fric=settings['tripping']['slidingFriction'], a=settings['tripping']['maxSpeedRatio'],
@@ -309,15 +316,61 @@ class Casing(object):
                        rho_fluid=settings['densities']['cementDisplacingFluid'],
                        f_pre=settings['forces']['preloading'])
 
-        self.displacement_gas(p_res=settings['production']['resPressure'], tvd_res=settings['production']['resTvd'],
-                              rho_gas=settings['densities']['gasKick'], rho_mud=settings['densities']['mud'])
+        if 'Displacement to gas' not in self.msgs:
+            self.displacement_gas(p_res=settings['production']['resPressure'], tvd_res=settings['production']['resTvd'],
+                                  rho_gas=settings['densities']['gasKick'], rho_mud=settings['densities']['mud'])
 
-        self.production(p_res=settings['production']['resPressure'],
-                        rho_prod_fluid=settings['production']['fluidDensity'],
-                        rho_ann_fluid=settings['densities']['completionFluid'],
-                        rho_packerfluid=settings['production']['packerFluidDensity'],
-                        md_toc=self.toc_md,
-                        tvd_packer=settings['production']['packerTvd'],
-                        tvd_perf=settings['production']['perforationsTvd'],
-                        poisson=settings['production']['poisson'],
-                        f_setting=settings['forces']['preloading'])
+        if 'Production' not in self.msgs:
+            self.production(p_res=settings['production']['resPressure'],
+                            rho_prod_fluid=settings['production']['fluidDensity'],
+                            rho_ann_fluid=settings['densities']['completionFluid'],
+                            rho_packerfluid=settings['production']['packerFluidDensity'],
+                            md_toc=self.toc_md,
+                            tvd_packer=settings['production']['packerTvd'],
+                            tvd_perf=settings['production']['perforationsTvd'],
+                            poisson=settings['production']['poisson'],
+                            f_setting=settings['forces']['preloading'])
+
+    def define_settings(self, settings):
+
+        default = {'densities': {'mud': 1.2, 'cement': 1.8, 'cementDisplacingFluid': 1.3, 'gasKick': 0.5,
+                                 'completionFluid': 1.8},
+                   'tripping': {'slidingFriction': 0.24, 'speed': 0.3, 'maxSpeedRatio': 1.5},
+                   'production': {'fluidDensity': 1.7, 'packerFluidDensity': 1.3, 'poisson': 0.3},
+                   'forces': {'overpull': 0,
+                              'preloading': 0},
+                   'testing': {'cementingPressure': 4472.65}}
+
+        if type(settings) == dict:
+            for key in settings.keys():
+                for item in settings[key].keys():
+                    default[key][item] = settings[key][item]
+
+        self.settings = default
+
+
+def gen_msgs(pipe):
+    necessary_inputs = {'Displacement to gas': {'resPressure': 'Reservoir pressure is missing',
+                                                'resTvd': 'Reservoir depth (tvd) is missing'},
+                        'Production': {'resPressure': 'Reservoir pressure is missing',
+                                       'packerTvd': 'Packer depth (tvd) is missing',
+                                       'perforationsTvd': 'Depth (tvd) of perforations is missing'}}
+
+    missing_loads = {}
+
+    for load, reference in necessary_inputs.items():
+        msgs = []
+        for parameter, msg in reference.items():
+            status = 0
+
+            for section in pipe.settings.values():
+                if parameter in section:
+                    status = 1
+
+            if status == 0:         # parameter was not found in settings
+                msgs.append(msg)
+
+        if len(msgs) > 0:
+            missing_loads[load] = msgs
+
+    pipe.msgs = missing_loads
