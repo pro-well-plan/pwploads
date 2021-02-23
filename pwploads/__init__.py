@@ -47,11 +47,7 @@ class Casing(object):
         self.dt = self.od / self.thickness
         self.toc_md = pipe['tocMd']
         self.shoe = pipe['shoeDepth']
-
-        if 'top' in pipe:
-            self.top = pipe['top']
-        else:
-            self.top = 0
+        self.top = pipe['top']
 
         if 'yield' in pipe:
             yield_s = pipe['yield']
@@ -293,10 +289,9 @@ class Casing(object):
 
     def add_trajectory(self, wellbore):
 
-        self.top = wellbore.seabed
         idx = [wellbore.trajectory.index(x) for x in wellbore.trajectory if self.top <= x['md'] <= self.shoe]
-        wellbore.md = [x['md'] - wellbore.seabed for x in wellbore.trajectory][idx[0]:idx[-1]+1]
-        wellbore.tvd = [x['tvd'] - wellbore.seabed for x in wellbore.trajectory][idx[0]:idx[-1]+1]
+        wellbore.md = [x['md'] - self.top for x in wellbore.trajectory][idx[0]:idx[-1]+1]
+        wellbore.tvd = [x['tvd'] - self.top for x in wellbore.trajectory][idx[0]:idx[-1]+1]
         wellbore.inclination = [x['inc'] for x in wellbore.trajectory][idx[0]:idx[-1]+1]
         wellbore.azimuth = [x['azi'] for x in wellbore.trajectory][idx[0]:idx[-1]+1]
         wellbore.dls = [x['dls'] for x in wellbore.trajectory][idx[0]:idx[-1]+1]
