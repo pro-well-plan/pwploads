@@ -118,6 +118,9 @@ class Casing(object):
     def injection(self, whp, rho_injectionfluid, rho_mud, temp, t_k, alpha=17e-6, poisson=0.3, f_setting=0):
         gen_injection(self, whp, rho_injectionfluid, rho_mud, temp, t_k, alpha, poisson, f_setting)
 
+    def full_evacuation(self, rho_prod_fluid, rho_mud, md_toc, poisson=0.3, f_setting=0.0):
+        gen_full_evacuation(self, rho_prod_fluid, rho_mud, md_toc, poisson, f_setting)
+
     def add_trajectory(self, wellbore):
 
         idx = [wellbore.trajectory.index(x) for x in wellbore.trajectory if self.top <= x['md'] <= self.shoe]
@@ -159,6 +162,11 @@ class Casing(object):
                        rho_fluid=settings['densities']['cementDisplacingFluid'],
                        f_pre=settings['forces']['preloading'])
 
+        self.full_evacuation(rho_prod_fluid=settings['production']['fluidDensity'],
+                             rho_mud=settings['densities']['mud'], md_toc=self.toc_md,
+                             poisson=settings['production']['poisson'],
+                             f_setting=settings['forces']['preloading'])
+
         if 'Displacement to gas' not in self.msgs:
             self.displacement_gas(p_res=settings['production']['resPressure'], tvd_res=settings['production']['resTvd'],
                                   rho_gas=settings['densities']['gasKick'], rho_mud=settings['densities']['mud'])
@@ -190,7 +198,7 @@ class Casing(object):
         default = {'densities': {'mud': 1.2, 'cement': 1.8, 'cementDisplacingFluid': 1.3, 'gasKick': 0.5,
                                  'completionFluid': 1.8},
                    'tripping': {'slidingFriction': 0.24, 'speed': 0.3, 'maxSpeedRatio': 1.5},
-                   'production': {'fluidDensity': 1.7, 'packerFluidDensity': 1.3, 'poisson': 0.3, 'wellHeadTemp': 10},
+                   'production': {'fluidDensity': 0.9, 'packerFluidDensity': 1.3, 'poisson': 0.3, 'wellHeadTemp': 10},
                    'forces': {'overpull': 0,
                               'preloading': 0},
                    'testing': {'cementingPressure': 4472.65},

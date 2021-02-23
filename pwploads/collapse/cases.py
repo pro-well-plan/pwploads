@@ -65,7 +65,7 @@ def production_fullevacuation(tvd, rho_mud):
     p_int = full_evacuation(tvd)
     p_ext = onefluid_behindcasing(tvd, rho_mud)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 

@@ -137,6 +137,29 @@ def production_with_packer(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rh
     return axial_force, pressure_differential
 
 
+def production_evacuation(trajectory, od_csg, id_csg, md_toc, rho_fluid_int, rho_mud, e, poisson=0.3,
+                          f_setting=0):
+
+    axial_force = axial.production(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_mud, e, poisson,
+                                   f_setting)
+
+    pressure_differential = collapse.production_fullevacuation(trajectory.tvd, rho_mud)
+
+    return axial_force, pressure_differential
+
+
+def stimulation(trajectory, md_toc, od_csg, id_csg, e, whp, rho_injectionfluid, rho_mud, rho_packerfluid, temp, t_k,
+                alpha=17e-6, poisson=0.3, f_setting=0):
+
+    axial_force = axial.injection(trajectory, md_toc, od_csg, id_csg, rho_injectionfluid, rho_mud, e, t_k, temp, alpha,
+                                  poisson, f_setting)
+
+    pressure_differential = burst.stimulation(trajectory.tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid,
+                                              tvd_packer=0)
+
+    return axial_force, pressure_differential
+
+
 def production_with_packer_depleted_zone(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
                                          tvd, rho_fluid, rho_mud, p_res, tvd_perf, rho_packerfluid, tvd_packer,
                                          tvd_zone, p_zone, poisson=0.3, f_setting=0):
@@ -171,18 +194,6 @@ def production_without_packer_depleted_zone(md, md_toc, od_csg, id_csg, delta_rh
 
     pressure_differential = burst.production_without_packer_and_depletedzone(tvd, p_res, rho_gas, tvd_res, tvd_zone,
                                                                              p_zone, rho_mud)
-
-    return axial_force, pressure_differential
-
-
-def stimulation(trajectory, md_toc, od_csg, id_csg, e, whp, rho_injectionfluid, rho_mud, rho_packerfluid, temp, t_k,
-                alpha=960e-6, poisson=0.3, f_setting=0):
-
-    axial_force = axial.injection(trajectory, md_toc, od_csg, id_csg, rho_injectionfluid, rho_mud, e, t_k, temp, alpha,
-                                  poisson, f_setting)
-
-    pressure_differential = burst.stimulation(trajectory.tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid,
-                                              tvd_packer=0)
 
     return axial_force, pressure_differential
 
@@ -253,17 +264,6 @@ def drill_stem_test(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, del
 
     if evacuation == "partial":
         pressure_differential = collapse.drill_stem_test_partialevacuation(tvd, rho_mud, tvd_zone, p_zone)
-
-    return axial_force, pressure_differential
-
-
-def production_evacuation(tvd, rho_mud, md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
-                          poisson=0.3, f_setting=0):
-
-    axial_force = axial.production(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
-                                   poisson, f_setting)
-
-    pressure_differential = collapse.production_fullevacuation(tvd, rho_mud)
 
     return axial_force, pressure_differential
 
