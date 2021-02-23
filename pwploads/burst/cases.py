@@ -216,7 +216,7 @@ def stimulation(tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid, tvd_pack
     :param tvd: list - true vertical depth, m
     :param whp: wellhead pressure, bar
     :param rho_injectionfluid: injection fluid density, sg
-    :param rho_mud:
+    :param rho_mud: mud density, sg
     :param rho_packerfluid: packer fluid density, sg
     :param tvd_packer: tvd at packer, m
     :return: differential pressure profile, Pa
@@ -228,7 +228,7 @@ def stimulation(tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid, tvd_pack
     p_int = tubing_leak_stimulation(tvd, whp, rho_packerfluid, rho_injectionfluid, tvd_packer)
     p_ext = onefluid_behindcasing(tvd, rho_mud)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 

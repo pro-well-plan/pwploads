@@ -54,12 +54,11 @@ def overpull(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, 
     return axial_force, pressure_differential
 
 
-def green_cement_pressure_test(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
+def green_cement_pressure_test(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
                                rho_fluid_int, p_test, e, f_h, f_pre=0):
     """
     Load case: Green Cement
     :param trajectory: wellpath object
-    :param tvd: list - true vertical depth, m
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
@@ -73,10 +72,11 @@ def green_cement_pressure_test(trajectory, tvd, nominal_weight, od_csg, id_csg, 
     :return: total axial force profile [kN] and pressure difference [psi]
     """
 
-    axial_force = axial.green_cement(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
+    axial_force = axial.green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
                                      rho_fluid_int, e, f_pre, f_h)
 
-    pressure_differential = burst.pressure_test_onefluid(tvd, p_test, rho_fluid_int, tvd_fluid_int, rho_cement)
+    pressure_differential = burst.pressure_test_onefluid(trajectory.tvd, p_test, rho_fluid_int, tvd_fluid_int,
+                                                         rho_cement)
 
     return axial_force, pressure_differential
 
@@ -95,10 +95,9 @@ def cementing(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid,
     :return: total axial force profile [kN] and pressure difference [psi]
     """
 
-    tvd = trajectory.tvd
-    axial_force = axial.cementation(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid, e, f_pre)
+    axial_force = axial.cementation(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid, e, f_pre)
 
-    pressure_differential = collapse.plug_cementation_onefluid_behindcasing(tvd, rho_fluid, rho_cement)
+    pressure_differential = collapse.plug_cementation_onefluid_behindcasing(trajectory.tvd, rho_fluid, rho_cement)
 
     return axial_force, pressure_differential
 
@@ -176,13 +175,14 @@ def production_without_packer_depleted_zone(md, md_toc, od_csg, id_csg, delta_rh
     return axial_force, pressure_differential
 
 
-def stimulation(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k, t_o, alpha, tvd,
-                whp, rho_injectionfluid, rho_mud, rho_packerfluid, poisson=0.3, f_setting=0, tvd_packer=0):
+def stimulation(trajectory, md_toc, od_csg, id_csg, e, whp, rho_injectionfluid, rho_mud, rho_packerfluid, temp, t_k,
+                alpha=960e-6, poisson=0.3, f_setting=0):
 
-    axial_force = axial.injection(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k,
-                                  t_o, alpha, poisson, f_setting)
+    axial_force = axial.injection(trajectory, md_toc, od_csg, id_csg, rho_injectionfluid, rho_mud, e, t_k, temp, alpha,
+                                  poisson, f_setting)
 
-    pressure_differential = burst.stimulation(tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid, tvd_packer)
+    pressure_differential = burst.stimulation(trajectory.tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid,
+                                              tvd_packer=0)
 
     return axial_force, pressure_differential
 

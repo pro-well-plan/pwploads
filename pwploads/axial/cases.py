@@ -83,11 +83,10 @@ def fluid_filled(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_fluid_ext,
     return force
 
 
-def cementation(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid, e, f_pre=0):
+def cementation(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid, e, f_pre=0):
     """
     Calculate axial load during cementing
     :param trajectory: wellpath object
-    :param tvd: list - true vertical depth, m
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
@@ -98,8 +97,8 @@ def cementation(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, rho
     :return: total axial force profile, kN
     """
 
-    f_w = air_weight(tvd, nominal_weight)
-    f_bu = buoyancy_force(tvd, od_csg, id_csg, [], [rho_cement], [], [rho_fluid])
+    f_w = air_weight(trajectory.tvd, nominal_weight)
+    f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, [], [rho_cement], [], [rho_fluid])
     f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
 
     force = [x1 - x2 + f_pre + x3 for x1, x2, x3 in zip(f_w, f_bu, f_be)]
@@ -107,12 +106,11 @@ def cementation(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, rho
     return force
 
 
-def green_cement(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int, rho_fluid_int, e,
+def green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int, rho_fluid_int, e,
                  f_pre=0, f_h=0):
     """
     Calculate axial load during green cement pressure test
     :param trajectory: wellpath object
-    :param tvd: list - true vertical depth, m
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
@@ -125,8 +123,8 @@ def green_cement(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, tv
     :return: total axial force profile, kN
     """
 
-    f_w = air_weight(tvd, nominal_weight)
-    f_bu = buoyancy_force(tvd, od_csg, id_csg, [], [rho_cement], tvd_fluid_int, rho_fluid_int)
+    f_w = air_weight(trajectory.tvd, nominal_weight)
+    f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, [], [rho_cement], tvd_fluid_int, rho_fluid_int)
     f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
 
     force = [x1 - x2 + f_h + f_pre + x3 for x1, x2, x3 in zip(f_w, f_bu, f_be)]
@@ -157,7 +155,7 @@ def production(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext,
     return force
 
 
-def injection(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, e, t_k, t_o, alpha, poisson=0.3,
+def injection(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, e, t_k, temp, alpha=17e-6, poisson=0.3,
               f_setting=0):
     """
     Calculate axial load during injection
@@ -169,7 +167,7 @@ def injection(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, 
     :param rho_fluid_ext: density of annular fluid after installation
     :param e: pipe Young's modulus, bar
     :param t_k: max. wellhead temperature during production, °C
-    :param t_o: mean ambient temperature, °C
+    :param temp: dict with temp values (°C) at seabed and a target
     :param alpha: thermal expansion coefficient, 1/°C
     :param poisson: Poisson’s ratio
     :param f_setting: hang off force of the casing string on slips or hangers, kN
@@ -178,7 +176,7 @@ def injection(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, 
 
     from .forces import thermal_load
 
-    f_th = thermal_load(od_csg, id_csg, t_k, t_o, alpha, e)
+    f_th = thermal_load(trajectory, od_csg, id_csg, t_k, temp, alpha, e)
     f_bl = ballooning(trajectory.md, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, poisson)
     f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
 

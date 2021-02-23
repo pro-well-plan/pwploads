@@ -21,7 +21,7 @@ class Casing(object):
         thickness (str or None): outer diameter of the casing [in]
         dt (float): ratio --> outer diameter / thickness
         area (float): effective area [in^2]
-        shoe_depth (float or int): measured depth at shoe [m]
+        shoe (float or int): measured depth at shoe [m]
         ellipse (list): triaxial points [x, y+, y-]
         csg_loads (list): list of loads that have been run
         nominal_weight (float or int): weight per unit length [kg/m]
@@ -30,8 +30,7 @@ class Casing(object):
         design_factor (dict): design factors used 'vme', 'api_compression', 'api_tension', 'api_burst', 'api_collapse'
     """
 
-    def __init__(self, pipe, conn_compression=0.6,
-                 conn_tension=0.6, factors=None):
+    def __init__(self, pipe, conn_compression=0.6, conn_tension=0.6, factors=None):
 
         df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1, 'triaxial': 1.25},
               'connection': {'tension': 1.0, 'compression': 1.0}}
@@ -47,6 +46,12 @@ class Casing(object):
         self.thickness = (self.od - self.id) / 2
         self.dt = self.od / self.thickness
         self.toc_md = pipe['tocMd']
+        self.shoe = pipe['shoeDepth']
+
+        if 'top' in pipe:
+            self.top = pipe['top']
+        else:
+            self.top = 0
 
         if 'yield' in pipe:
             yield_s = pipe['yield']
@@ -72,7 +77,6 @@ class Casing(object):
                        'tension': yield_s * self.area,
                        'tension_df': yield_s * self.area / df['pipe']['tension']}
 
-        self.shoe_depth = pipe['shoeDepth']
         self.ellipse = vme(yield_s, self.area, self.id, self.od, df['pipe']['triaxial'])
         self.csg_loads = []
         self.trajectory = None
@@ -117,7 +121,7 @@ class Casing(object):
         e = convert_unit(self.e, unit_from='psi', unit_to='bar')
 
         axial_force, pressure_differential = running(self.trajectory, self.nominal_weight, self.od, self.id,
-                                                     self.shoe_depth, tvd_fluid, rho_fluid, v_avg, e, fric, a)
+                                                     self.shoe, tvd_fluid, rho_fluid, v_avg, e, fric, a)
 
         axial_force = [x * 1000 / 4.448 for x in axial_force]   # kN to lbf
 
@@ -151,7 +155,7 @@ class Casing(object):
         e = convert_unit(self.e, unit_from='psi', unit_to='bar')
 
         axial_force, pressure_differential = overpull(self.trajectory, self.nominal_weight, self.od, self.id,
-                                                      self.shoe_depth, tvd_fluid, rho_fluid, v_avg, e, fric, a, f_ov)
+                                                      self.shoe, tvd_fluid, rho_fluid, v_avg, e, fric, a, f_ov)
 
         axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
 
@@ -186,7 +190,7 @@ class Casing(object):
         p_test = convert_unit(p_test, unit_from="psi", unit_to="bar")
         e = convert_unit(self.e, unit_from='psi', unit_to='bar')
 
-        axial_force, pressure_differential = green_cement_pressure_test(self.trajectory, tvd, self.nominal_weight,
+        axial_force, pressure_differential = green_cement_pressure_test(self.trajectory, self.nominal_weight,
                                                                         self.od, self.id, rho_cement, tvd_fluid_int,
                                                                         rho_fluid_int, p_test, e, f_test, f_pre)
 
@@ -276,13 +280,34 @@ class Casing(object):
             ["Production", axial_force, pressure_differential]
         )
 
+    def injection(self, whp, rho_injectionfluid, rho_mud, temp, t_k, alpha=17e-6, poisson=0.3, f_setting=0):
+
+        from .load_cases import stimulation
+
+        whp = convert_unit(whp, unit_from='psi', unit_to='bar')
+        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
+
+        axial_force, pressure_differential = stimulation(self.trajectory, self.toc_md, self.od, self.id, e,
+                                                         whp, rho_injectionfluid, rho_mud, rho_mud, temp, t_k,
+                                                         alpha=alpha, poisson=poisson, f_setting=f_setting)
+
+        pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
+
+        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
+
+        self.csg_loads.append(
+            ["Injection", axial_force, pressure_differential]
+        )
+
     def add_trajectory(self, wellbore):
 
-        wellbore.md = [x['md'] for x in wellbore.trajectory if x['md'] <= self.shoe_depth]
-        wellbore.tvd = [x['tvd'] for x in wellbore.trajectory][:len(wellbore.md)]
-        wellbore.inclination = [x['inc'] for x in wellbore.trajectory][:len(wellbore.md)]
-        wellbore.azimuth = [x['azi'] for x in wellbore.trajectory][:len(wellbore.md)]
-        wellbore.dls = [x['dls'] for x in wellbore.trajectory][:len(wellbore.md)]
+        self.top = wellbore.seabed
+        idx = [wellbore.trajectory.index(x) for x in wellbore.trajectory if self.top <= x['md'] <= self.shoe]
+        wellbore.md = [x['md'] - wellbore.seabed for x in wellbore.trajectory][idx[0]:idx[-1]+1]
+        wellbore.tvd = [x['tvd'] - wellbore.seabed for x in wellbore.trajectory][idx[0]:idx[-1]+1]
+        wellbore.inclination = [x['inc'] for x in wellbore.trajectory][idx[0]:idx[-1]+1]
+        wellbore.azimuth = [x['azi'] for x in wellbore.trajectory][idx[0]:idx[-1]+1]
+        wellbore.dls = [x['dls'] for x in wellbore.trajectory][idx[0]:idx[-1]+1]
         self.trajectory = wellbore
 
     def plot(self, plot_type='plotly'):
@@ -331,15 +356,25 @@ class Casing(object):
                             poisson=settings['production']['poisson'],
                             f_setting=settings['forces']['preloading'])
 
+        if 'Injection' not in self.msgs:
+            self.injection(whp=settings['injection']['whp'], rho_injectionfluid=settings['densities']['injectionFluid'],
+                           rho_mud=settings['densities']['mud'], temp=settings['temp'],
+                           t_k=settings['production']['wellHeadTemp'],
+                           poisson=settings['production']['poisson'],
+                           f_setting=settings['forces']['preloading'])
+
     def define_settings(self, settings):
 
         default = {'densities': {'mud': 1.2, 'cement': 1.8, 'cementDisplacingFluid': 1.3, 'gasKick': 0.5,
                                  'completionFluid': 1.8},
                    'tripping': {'slidingFriction': 0.24, 'speed': 0.3, 'maxSpeedRatio': 1.5},
-                   'production': {'fluidDensity': 1.7, 'packerFluidDensity': 1.3, 'poisson': 0.3},
+                   'production': {'fluidDensity': 1.7, 'packerFluidDensity': 1.3, 'poisson': 0.3, 'wellHeadTemp': 10},
                    'forces': {'overpull': 0,
                               'preloading': 0},
-                   'testing': {'cementingPressure': 4472.65}}
+                   'testing': {'cementingPressure': 4472.65},
+                   'injection': {'whp': 2000, 'injectionFluid': 1.3},
+                   'temp': {'seabed': {'tvd': 500, 'temp': 4},
+                            'target': {'tvd': 1500, 'temp': 160}}}
 
         if type(settings) == dict:
             for key in settings.keys():
@@ -354,7 +389,9 @@ def gen_msgs(pipe):
                                                 'resTvd': 'Reservoir depth (tvd) is missing'},
                         'Production': {'resPressure': 'Reservoir pressure is missing',
                                        'packerTvd': 'Packer depth (tvd) is missing',
-                                       'perforationsTvd': 'Depth (tvd) of perforations is missing'}}
+                                       'perforationsTvd': 'Depth (tvd) of perforations is missing'},
+                        'Injection': {'whp': 'Wellhead Pressure during injection is missing',
+                                      'injectionFluid': 'Injection fluid density is missing'}}
 
     missing_loads = {}
 
