@@ -8,13 +8,12 @@ def create_pyplot_figure(csg):
     fig, ax = plt.subplots()
 
     # Plotting VME
-    ax.plot(array(csg.ellipse[0]) / 1000, array(csg.ellipse[1]) / 1000, 'r', label='Triaxial ' +
-                                                                                   str(csg.design_factor['vme']),
+    ax.plot(csg.ellipse[0], csg.ellipse[1], 'r', label='Triaxial ' + str(csg.design_factor['vme']),
             linestyle='dashed')
-    ax.plot(array(csg.ellipse[0]) / 1000, array(csg.ellipse[2]) / 1000, 'r', linestyle='dashed')
+    ax.plot(csg.ellipse[0], csg.ellipse[2], 'r', linestyle='dashed')
 
     # Plotting API limits
-    ax.plot(array(csg.api_lines[0]) / 1000, array(csg.api_lines[1]) / 1000, 'k', label='API')
+    ax.plot(csg.api_lines[0], csg.api_lines[1], 'k', label='API')
 
     # Plotting connections limits
     # for compression
@@ -46,8 +45,8 @@ def create_plotly_figure(csg):
     fig = go.Figure()
 
     # Plotting VME
-    triaxial_x = array(csg.ellipse[0] + csg.ellipse[0][::-1])/1000
-    triaxial_y = array(csg.ellipse[1] + csg.ellipse[2][::-1])/1000
+    triaxial_x = csg.ellipse[0] + csg.ellipse[0][::-1]
+    triaxial_y = csg.ellipse[1] + csg.ellipse[2][::-1]
     fig.add_trace(go.Scatter(x=triaxial_x, y=triaxial_y, line={'color': 'red', 'dash': 'dash'},
                              name='Triaxial ' + str(csg.design_factor['vme'])))
 
