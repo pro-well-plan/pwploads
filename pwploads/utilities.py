@@ -75,8 +75,26 @@ def define_min_df(csg):
         if '_MaxCollapsePoint' in load:
             base['collapse'] = get_collapse_base(csg, load['_MaxCollapsePoint'])
         load['minDF'] = {}
-        for type, value in load['maxLoads'].items():
+        for load_type, value in load['maxLoads'].items():
             if value is None:
-                load['minDF'][type] = None
+                load['minDF'][load_type] = None
             else:
-                load['minDF'][type] = base[type] / value
+                load['minDF'][load_type] = base[load_type] / value
+
+
+def define_safety_factors(csg):
+    precaution = {'burst': None, 'collapse': None, 'tension': None, 'compression': None}
+    for load_type in precaution.keys():
+        warning = {'load': None, 'safetyFactor': 1000, 'maxLoad': None}
+        for load in csg.loads:
+            if load['minDF'][load_type] is None:
+                value = 1000
+            else:
+                value = load['minDF'][load_type]
+            if value < warning['safetyFactor']:
+                warning['load'] = load['description']
+                warning['safetyFactor'] = round(load['minDF'][load_type], 2)
+                warning['maxLoad'] = round(abs(load['maxLoads'][load_type]), 2)
+                precaution[load_type] = warning
+
+    csg.safety_factors = precaution

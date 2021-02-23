@@ -79,6 +79,7 @@ class Casing(object):
         self.trajectory = None
         self.settings = None
         self.msgs = None
+        self.safety_factors = None
         self.api_lines, self.collapse_curve = api_limits(self.dt, yield_s, self.limits, self.area,
                                                          df['pipe']['tension'],
                                                          df['pipe']['compression'],
@@ -353,6 +354,7 @@ class Casing(object):
 
         define_max_loads(self.loads)
         define_min_df(self)
+        define_safety_factors(self)
 
     def define_settings(self, settings):
 
