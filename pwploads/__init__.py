@@ -121,6 +121,9 @@ class Casing(object):
     def full_evacuation(self, rho_prod_fluid, rho_mud, md_toc, poisson=0.3, f_setting=0.0):
         gen_full_evacuation(self, rho_prod_fluid, rho_mud, md_toc, poisson, f_setting)
 
+    def pressure_test(self, whp, effective_diameter, rho_testing_fluid, rho_mud):
+        gen_pressure_test(self, whp, effective_diameter, rho_testing_fluid, rho_mud)
+
     def add_trajectory(self, wellbore):
 
         idx = [wellbore.trajectory.index(x) for x in wellbore.trajectory if self.top <= x['md'] <= self.shoe]
@@ -188,6 +191,12 @@ class Casing(object):
                            t_k=settings['production']['wellHeadTemp'],
                            poisson=settings['production']['poisson'],
                            f_setting=settings['forces']['preloading'])
+
+        if 'Pressure Test' not in self.msgs:
+            self.pressure_test(whp=settings['testing']['testPressure'],
+                               effective_diameter=settings['testing']['pipeDiameter'],
+                               rho_testing_fluid=settings['testing']['testFluidDensity'],
+                               rho_mud=settings['densities']['mud'])
 
         define_max_loads(self.loads)
         define_min_df(self)

@@ -183,3 +183,22 @@ def injection(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, 
     force = [f_setting + x1 + x2 + x3 for x1, x2, x3 in zip(f_bl, f_th, f_be)]
 
     return force
+
+
+def pressure_test(trajectory, whp, effective_diameter, od_csg,  e):
+    """
+    Calculate axial load during green cement pressure test
+    :param trajectory: wellpath object
+    :param whp: wellhead pressure, bar
+    :param od_csg: pipe outer diameter, in
+    :param effective_diameter: pipe inner diameter, in
+    :param e: pipe Young's modulus, bar
+    :return: total axial force profile, kN
+    """
+
+    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
+    f_h = pressure_testing(trajectory.tvd, whp, effective_diameter)
+
+    force = [x1 + x2 for x1, x2 in zip(f_h, f_be)]
+
+    return force

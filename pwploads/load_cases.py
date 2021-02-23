@@ -54,8 +54,8 @@ def overpull(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, 
     return axial_force, pressure_differential
 
 
-def green_cement_pressure_test(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
-                               rho_fluid_int, p_test, e, f_h, f_pre=0):
+def green_cement_pressure_test(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int, rho_fluid_int,
+                               p_test, e, f_h, f_pre=0):
     """
     Load case: Green Cement
     :param trajectory: wellpath object
@@ -75,8 +75,7 @@ def green_cement_pressure_test(trajectory, nominal_weight, od_csg, id_csg, rho_c
     axial_force = axial.green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
                                      rho_fluid_int, e, f_pre, f_h)
 
-    pressure_differential = burst.pressure_test_onefluid(trajectory.tvd, p_test, rho_fluid_int, tvd_fluid_int,
-                                                         rho_cement)
+    pressure_differential = burst.pressure_test_onefluid(trajectory.tvd, p_test, rho_fluid_int, rho_cement)
 
     return axial_force, pressure_differential
 
@@ -285,5 +284,14 @@ def injection_evacuation(tvd, tvd_perf, rho_inj, p_inj, tvd_influencedzone, rho_
         pressure_differential = collapse.injection_partialevacuation(tvd, tvd_perf, rho_inj, p_inj, p_zone,
                                                                      tvd_influencedzone, rho_fluid_before_cementation,
                                                                      p_fric, rho_form, rho_fluid_above_packer)
+
+    return axial_force, pressure_differential
+
+
+def pressure_test(trajectory, whp, od_csg, e, effective_diameter, rho_testing_fluid, rho_mud):
+
+    axial_force = axial.pressure_test(trajectory, whp, effective_diameter, od_csg, e)
+
+    pressure_differential = burst.pressure_test_onefluid(trajectory.tvd, whp, rho_testing_fluid, rho_mud)
 
     return axial_force, pressure_differential

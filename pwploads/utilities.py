@@ -8,7 +8,10 @@ def gen_msgs(pipe):
                                        'packerTvd': 'Packer depth (tvd) is missing',
                                        'perforationsTvd': 'Depth (tvd) of perforations is missing'},
                         'Injection': {'whp': 'Wellhead Pressure during injection is missing',
-                                      'injectionFluid': 'Injection fluid density is missing'}}
+                                      'injectionFluid': 'Injection fluid density is missing'},
+                        'Pressure Test': {'testFluidDensity': 'Fluid density for pressure test is missing',
+                                          'testPressure': 'Testing pressure is missing',
+                                          'pipeDiameter': 'Effective pipe diameter is missing'}}
 
     missing_loads = {}
 

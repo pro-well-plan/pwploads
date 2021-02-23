@@ -101,41 +101,20 @@ def displacement_to_gas(tvd, p_res, rho_gas, tvd_res):
     return p_int
 
 
-def pressure_test(tvd, p_test, rho_mud, tvd_ref):
+def pressure_test(tvd, p_test, rho_mud):
     """
     Calculate internal pressure profile based on mud weight applied pressure at the wellhead.
     :param tvd: list - true vertical depth, m
     :param p_test: testing pressure, bar
-    :param rho_mud: list - downwards sorted mud densities, sg
-    :param tvd_ref: list - reference tvd of fluid change, m
+    :param rho_mud: float - downwards sorted mud densities, sg
     :return: internal pressure profile, Pa
     """
 
     p_test = convert_unit(p_test, unit_from="bar", unit_to="Pa")
 
-    rho_fluid = [convert_unit(x, unit_from="sg", unit_to="kg/m3") for x in rho_mud]  # convert sg to kg/m3
+    rho_fluid = convert_unit(rho_mud, unit_from="sg", unit_to="kg/m3")  # convert sg to kg/m3
 
-    tvd_ref.append(tvd[-1])
-
-    p_prev = p_test
-    tvd_fluid_prev = 0
-    rho_fluid = iter(rho_fluid)
-    tvd_fluid = iter(tvd_ref)
-    rho_fluid_selected = next(rho_fluid)
-    tvd_fluid_selected = next(tvd_fluid)
-
-    p_ext = []
-    for x in tvd:
-        p = g * rho_fluid_selected * (x - tvd_fluid_prev) + p_prev
-
-        if (x >= tvd_fluid_selected) and (tvd_fluid_selected != tvd[-1]):
-            tvd_fluid_prev = tvd_fluid_selected
-            tvd_fluid_selected = next(tvd_fluid)
-            rho_fluid_selected = next(rho_fluid)
-            p_prev = p
-        p_ext.append(p)
-
-    return p_ext
+    return [g * rho_fluid * tvd + p_test for tvd in tvd]
 
 
 def tubing_leak(tvd, p_res, rho_fluid, tvd_perf, rho_packerfluid, tvd_packer, rho_mud):

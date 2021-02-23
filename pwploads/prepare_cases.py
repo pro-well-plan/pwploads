@@ -220,3 +220,20 @@ def gen_full_evacuation(csg, rho_prod_fluid, rho_mud, md_toc, poisson=0.3, f_set
 
     csg.loads.append({'description': 'Full Evacuation', 'axialForce': axial_force,
                       'diffPressure': pressure_differential})
+
+
+def gen_pressure_test(csg, whp, effective_diameter, rho_testing_fluid, rho_mud):
+    from .load_cases import pressure_test
+
+    whp = convert_unit(whp, unit_from='psi', unit_to='bar')
+    e = convert_unit(csg.e, unit_from='psi', unit_to='bar')
+
+    axial_force, pressure_differential = pressure_test(csg.trajectory, whp, csg.od, e, effective_diameter,
+                                                       rho_testing_fluid, rho_mud)
+
+    pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
+
+    axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
+
+    csg.loads.append({'description': 'Pressure Test', 'axialForce': axial_force,
+                      'diffPressure': pressure_differential})
