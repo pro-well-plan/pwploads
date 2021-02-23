@@ -19,13 +19,13 @@ def create_pyplot_figure(self):
     # Plotting connections limits
     # for compression
     ax.plot([self.conn_limits[0]/1000]*2,
-            [self.limits['collapse_df']/1000, self.limits['burst_df']/1000],
+            [self.limits['collapseDF']/1000, self.limits['burstDF']/1000],
             '0.55',
             label='Connection', linestyle='dashed')
 
     # for tension
     ax.plot([self.conn_limits[1] / 1000] * 2,
-            [self.limits['burst_df'] / 1000,
+            [self.limits['burstDF'] / 1000,
              interp(self.conn_limits[1], self.collapse_curve[0], self.collapse_curve[1]) / 1000],
             '0.55', linestyle='dashed')
 
@@ -58,11 +58,11 @@ def create_plotly_figure(self):
     # Plotting connections limits
     # for compression
     fig.add_trace(go.Scatter(x=[self.conn_limits[0] / 1000] * 2,
-                             y=[self.limits['collapse_df'] / 1000, self.limits['burst_df'] / 1000],
+                             y=[self.limits['collapseDF'] / 1000, self.limits['burstDF'] / 1000],
                              line={'color': 'gray', 'dash': 'dash'}, name='Connection', mode='lines'))
     # for tension
     fig.add_trace(go.Scatter(x=[self.conn_limits[1] / 1000] * 2,
-                             y=[self.limits['burst_df'] / 1000,
+                             y=[self.limits['burstDF'] / 1000,
                                 interp(self.conn_limits[1], self.collapse_curve[0], self.collapse_curve[1]) / 1000],
                              line={'color': 'gray', 'dash': 'dash'}, name='Connection', mode='lines'))
     fig['data'][-1]['showlegend'] = False       # Hide last label (otherwise it'd show twice 'Connection')

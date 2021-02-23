@@ -27,7 +27,7 @@ class Casing(object):
         nominal_weight (float or int): weight per unit length [kg/m]
         trajectory (obj): wellbore trajectory object
         api_lines (list): API limits coordinates [x, y]
-        design_factor (dict): design factors used 'vme', 'api_compression', 'api_tension', 'api_burst', 'api_collapse'
+        design_factor (dict): design factors used 'vme', 'api'
     """
 
     def __init__(self, pipe, conn_compression=0.6, conn_tension=0.6, factors=None):
@@ -69,13 +69,13 @@ class Casing(object):
             self.e = 29e6
 
         self.limits = {'burst': 0.875 * 2 * yield_s * self.thickness / self.od,
-                       'burst_df': 0.875 * 2 * yield_s * self.thickness / self.od / df['pipe']['burst'],
+                       'burstDF': 0.875 * 2 * yield_s * self.thickness / self.od / df['pipe']['burst'],
                        'collapse': - calc_collapse_pressure(self.dt, yield_s),
-                       'collapse_df': - calc_collapse_pressure(self.dt, yield_s) / df['pipe']['collapse'],
+                       'collapseDF': - calc_collapse_pressure(self.dt, yield_s) / df['pipe']['collapse'],
                        'compression': - yield_s * self.area,
-                       'compression_df': - yield_s * self.area / df['pipe']['compression'],
+                       'compressionDF': - yield_s * self.area / df['pipe']['compression'],
                        'tension': yield_s * self.area,
-                       'tension_df': yield_s * self.area / df['pipe']['tension']}
+                       'tensionDF': yield_s * self.area / df['pipe']['tension']}
 
         self.ellipse = vme(yield_s, self.area, self.id, self.od, df['pipe']['triaxial'])
         self.csg_loads = []
@@ -91,10 +91,10 @@ class Casing(object):
                                            df['connection']['compression'],
                                            df['connection']['tension'])
         self.design_factor = {'vme': df['pipe']['triaxial'],
-                              'api_compression': df['pipe']['compression'],
-                              'api_tension': df['pipe']['tension'],
-                              'api_burst': df['pipe']['burst'],
-                              'api_collapse': df['pipe']['collapse']}
+                              'api': {'compression': df['pipe']['compression'],
+                                      'tension': df['pipe']['tension'],
+                                      'burst': df['pipe']['burst'],
+                                      'collapse': df['pipe']['collapse']}}
 
     def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5):
         """
@@ -185,7 +185,6 @@ class Casing(object):
         if rho_fluid_int is None:
             rho_fluid_int = [1.2]
 
-        tvd = self.trajectory.tvd
         f_test = convert_unit(p_test * self.area, unit_from="lbf", unit_to="kN")
         p_test = convert_unit(p_test, unit_from="psi", unit_to="bar")
         e = convert_unit(self.e, unit_from='psi', unit_to='bar')
