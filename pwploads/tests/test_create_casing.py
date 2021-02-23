@@ -6,7 +6,8 @@ def default_casing():
     pipe = {'od': 8,
             'id': 7.2,
             'shoeDepth': 1500,
-            'tocMd': 1000}
+            'tocMd': 1000,
+            'top': 500}
 
     casing = pwploads.Casing(pipe)
 
@@ -23,7 +24,7 @@ class TestCasing(TestCase):
         self.assertIsInstance(casing.area, (float, int), 'area is not a number')
         self.assertTrue(casing.area < 20, 'the effective area is too high')
         self.assertIsInstance(casing.ellipse, list, 'triaxial ellipse is not a list')
-        self.assertIsInstance(casing.csg_loads, list, 'loads is not a list')
+        self.assertIsInstance(casing.loads, list, 'loads is not a list')
         self.assertIsInstance(casing.nominal_weight, (float, int), 'weight is not a number')
         self.assertIsInstance(casing.api_lines, list, 'api_lines (limits) is not a list')
         self.assertIsInstance(casing.design_factor, dict, 'design_factor is not a dict')

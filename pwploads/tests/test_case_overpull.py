@@ -8,7 +8,8 @@ pipe = {'od': 8,
         'tocMd': 1000,
         'weight': 100,
         'yield': 80000,
-        'e': 29e6}
+        'e': 29e6,
+        'top': 500}
 df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1, 'triaxial': 1.25},
       'connection': {'tension': 1.0, 'compression': 1.0}}
 
@@ -27,4 +28,5 @@ casing.overpull(tvd_fluid=[300],    # fluid of 1.2 sg before reaching 300 m dept
 class TestCasing(TestCase):
     def test_overpull(self):
 
-        self.assertTrue('Overpull' == casing.csg_loads[0][0], 'Load: Overpull was not included')
+        self.assertTrue('Overpull' in [load['description'] for load in casing.loads],
+                        'Load: Overpull was not included')

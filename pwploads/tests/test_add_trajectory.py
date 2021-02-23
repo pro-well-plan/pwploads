@@ -10,7 +10,8 @@ def default_casing_with_trajectory():
             'tocMd': 1000,
             'weight': 100,
             'yield': 80000,
-            'e': 29e6}
+            'e': 29e6,
+            'top': 500}
     df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1, 'triaxial': 1.25},
           'connection': {'tension': 1.0, 'compression': 1.0}}
 

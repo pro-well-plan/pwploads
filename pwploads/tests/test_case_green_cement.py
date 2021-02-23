@@ -12,7 +12,8 @@ pipe = {'od': 8,
         'tocMd': 1000,
         'weight': 100,
         'yield': 80000,
-        'e': 29e6}
+        'e': 29e6,
+        'top': 500}
 df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1, 'triaxial': 1.25},
       'connection': {'tension': 1.0, 'compression': 1.0}}
 
@@ -30,4 +31,5 @@ casing.green_cement(tvd_fluid_int=[300],    # fluid of 1.2 sg before reaching 30
 class TestCasing(TestCase):
     def test_green_cement(self):
 
-        self.assertTrue('Green Cement' == casing.csg_loads[0][0], 'Load: Green cement was not included')
+        self.assertTrue('Green Cement Pressure Test' in [load['description'] for load in casing.loads],
+                        'Load: Green cement was not included')
