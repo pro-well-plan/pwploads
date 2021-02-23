@@ -355,6 +355,8 @@ class Casing(object):
                            poisson=settings['production']['poisson'],
                            f_setting=settings['forces']['preloading'])
 
+        define_max_loads(self.loads)
+
     def define_settings(self, settings):
 
         default = {'densities': {'mud': 1.2, 'cement': 1.8, 'cementDisplacingFluid': 1.3, 'gasKick': 0.5,
@@ -403,3 +405,28 @@ def gen_msgs(pipe):
             missing_loads[load] = msgs
 
     pipe.msgs = missing_loads
+
+
+def define_max_loads(loads):
+    for load in loads:
+        min_level = {'force': min(load['axialForce']), 'pressure': min(load['diffPressure'])}
+        max_level = {'force': max(load['axialForce']), 'pressure': max(load['diffPressure'])}
+        max_loads = {}
+        if min_level['force'] < 0:
+            max_loads['compression'] = min_level['force']
+        else:
+            max_loads['compression'] = None
+        if max_level['force'] > 0:
+            max_loads['tension'] = max_level['force']
+        else:
+            max_loads['tension'] = None
+        if min_level['pressure'] < 0:
+            max_loads['collapse'] = min_level['pressure']
+        else:
+            max_loads['collapse'] = None
+        if max_level['pressure'] > 0:
+            max_loads['burst'] = max_level['pressure']
+        else:
+            max_loads['burst'] = None
+
+        load['maxLoads'] = max_loads
