@@ -13,10 +13,10 @@ def vme(yield_s, area, int_diam, out_diam, design_factor=1.25):
 
     a_factor = ((pi * (out_diam/2)**2) + (pi * (int_diam/2)**2)) / area
 
-    ellipse = [[x * area/1000 for x in xaxis_neg] + [x * area/1000 for x in xaxis_pos],
-               [(0.5 * (x + (4*yield_s**2 - 3*x**2)**0.5)/a_factor)/1000 for x in xaxis_neg] +
+    ellipse = [[x * area/1000 for x in xaxis_neg] + [x * area/1000 for x in xaxis_pos],                 # axial forces
+               [(0.5 * (x + (4*yield_s**2 - 3*x**2)**0.5)/a_factor)/1000 for x in xaxis_neg] +          # burst zone
                [(0.5 * (x + (4*yield_s**2 - 3*x**2)**0.5)/a_factor)/1000 for x in xaxis_pos],
-               [(0.5 * (x - (4*yield_s**2 - 3*x**2)**0.5)/a_factor)/1000 for x in xaxis_neg] +
+               [(0.5 * (x - (4*yield_s**2 - 3*x**2)**0.5)/a_factor)/1000 for x in xaxis_neg] +          # collapse zone
                [(0.5 * (x - (4*yield_s**2 - 3*x**2)**0.5)/a_factor)/1000 for x in xaxis_pos]]
 
     return ellipse
