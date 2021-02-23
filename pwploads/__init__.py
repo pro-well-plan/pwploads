@@ -5,6 +5,7 @@ from .von_mises import vme
 from .design_factors import api_limits
 from .connections import get_conn_limits
 from .utilities import *
+from .prepare_cases import *
 
 
 class Casing(object):
@@ -95,199 +96,27 @@ class Casing(object):
                                       'collapse': df['pipe']['collapse']}}
 
     def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5):
-        """
-        Run load case: Running in hole
-
-        Keyword Arguments:
-            tvd_fluid (list or None): reference tvd of fluid change
-            rho_fluid (list or None): downwards sorted fluids densities
-            v_avg (float): average running speed, m/s
-            fric (float): sliding friction factor pipe - wellbore
-            a (float): ratio of maximum running speed to average running speed
-
-        Returns:
-            None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
-        """
-
-        from .load_cases import running
-
-        if tvd_fluid is None:
-            tvd_fluid = []
-        if rho_fluid is None:
-            rho_fluid = [1.2]
-
-        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
-
-        axial_force, pressure_differential = running(self.trajectory, self.nominal_weight, self.od, self.id,
-                                                     self.shoe, tvd_fluid, rho_fluid, v_avg, e, fric, a)
-
-        axial_force = [x * 1000 / 4.448 for x in axial_force]   # kN to lbf
-
-        self.loads.append({'description': 'Running', 'axialForce': axial_force,
-                           'diffPressure': pressure_differential})
+        gen_running(self, tvd_fluid, rho_fluid, v_avg, fric, a)
 
     def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5, f_ov=0.0):
-        """
-        Run load case: Overpull
-
-        Keyword Arguments:
-            tvd_fluid (list or None): reference tvd of fluid change
-            rho_fluid (list or None): downwards sorted fluids densities
-            v_avg (float): average running speed, m/s
-            fric (float): sliding friction factor pipe - wellbore
-            a (float): ratio of maximum running speed to average running speed
-            f_ov (int or float): overpull force (often during freeing of stuck pipe), kN.
-
-        Returns:
-            None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
-        """
-
-        from .load_cases import overpull
-
-        if tvd_fluid is None:
-            tvd_fluid = []
-        if rho_fluid is None:
-            rho_fluid = [1.2]
-
-        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
-
-        axial_force, pressure_differential = overpull(self.trajectory, self.nominal_weight, self.od, self.id,
-                                                      self.shoe, tvd_fluid, rho_fluid, v_avg, e, fric, a, f_ov)
-
-        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
-
-        self.loads.append({'description': 'Overpull', 'axialForce': axial_force,
-                           'diffPressure': pressure_differential})
+        gen_overpull(self, tvd_fluid, rho_fluid, v_avg, fric, a, f_ov)
 
     def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8, f_pre=0.0, p_test=0.0):
-        """
-        Run load case: Green Cement Pressure test
-
-        Keyword Arguments:
-            rho_cement (float): cement density, sg
-            tvd_fluid_int (list or None): reference tvd of fluid change inside, m
-            rho_fluid_int (list or None): downwards sorted fluids densities inside, sg
-            f_pre (int or float): pre-loading force applied to the casing string if necessary, kN
-            p_test (int or float): testing pressure, psi
-
-        Returns:
-            None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
-        """
-
-        from .load_cases import green_cement_pressure_test
-
-        if tvd_fluid_int is None:
-            tvd_fluid_int = []
-        if rho_fluid_int is None:
-            rho_fluid_int = [1.2]
-
-        f_test = convert_unit(p_test * self.area, unit_from="lbf", unit_to="kN")
-        p_test = convert_unit(p_test, unit_from="psi", unit_to="bar")
-        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
-
-        axial_force, pressure_differential = green_cement_pressure_test(self.trajectory, self.nominal_weight,
-                                                                        self.od, self.id, rho_cement, tvd_fluid_int,
-                                                                        rho_fluid_int, p_test, e, f_test, f_pre)
-
-        pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
-
-        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
-
-        self.loads.append({'description': 'Green Cement Pressure Test', 'axialForce': axial_force,
-                           'diffPressure': pressure_differential})
+        gen_green_cement(self, tvd_fluid_int, rho_fluid_int, rho_cement, f_pre, p_test)
 
     def cementing(self, rho_cement=1.8, rho_fluid=1.3, f_pre=0.0):
-        """
-        Run load case: Cementing
-
-        Keyword Arguments:
-            rho_cement (float): cement density, sg
-            rho_fluid (float): displacement fluid density, sg
-            f_pre (int or float): pre-loading force applied to the casing string if necessary, kN
-
-        Returns:
-            None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
-        """
-
-        from .load_cases import cementing
-
-        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
-
-        axial_force, pressure_differential = cementing(self.trajectory, self.nominal_weight, self.od, self.id,
-                                                       rho_cement, rho_fluid, e, f_pre)
-
-        pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
-
-        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
-
-        self.loads.append({'description': 'Cementing', 'axialForce': axial_force,
-                           'diffPressure': pressure_differential})
+        gen_cementing(self, rho_cement, rho_fluid, f_pre)
 
     def displacement_gas(self, p_res, tvd_res, rho_gas=0.5, rho_mud=1.4):
-        """
-        Run load case: Displacement to gas
-
-        Keyword Arguments:
-            :param p_res: reservoir pressure, psi
-            :param tvd_res: tvd at reservoir, m
-            :param rho_gas: (float) gas density, sg
-            :param rho_mud: (float) mud density, sg
-
-        Returns:
-            None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
-        """
-
-        from .load_cases import gas_filled
-
-        p_res = convert_unit(p_res, unit_from='psi', unit_to='bar')
-        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
-
-        axial_force, pressure_differential = gas_filled(self.trajectory, self.nominal_weight, self.od, self.id,
-                                                        rho_mud, rho_gas, p_res, tvd_res, e)
-
-        pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
-
-        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
-
-        self.loads.append({'description': 'Displacement to gas', 'axialForce': axial_force,
-                           'diffPressure': pressure_differential})
+        gen_displacement_gas(self, p_res, tvd_res, rho_gas, rho_mud)
 
     def production(self, p_res, rho_prod_fluid, rho_ann_fluid, rho_packerfluid, md_toc, tvd_packer, tvd_perf,
                    poisson=0.3, f_setting=0.0):
-
-        from .load_cases import production_with_packer
-
-        p_res = convert_unit(p_res, unit_from='psi', unit_to='bar')
-        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
-
-        axial_force, pressure_differential = production_with_packer(self.trajectory, md_toc, self.od, self.id,
-                                                                    rho_prod_fluid, rho_ann_fluid, e, p_res, tvd_perf,
-                                                                    rho_packerfluid, tvd_packer, poisson, f_setting)
-
-        pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
-
-        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
-
-        self.loads.append({'description': 'Production', 'axialForce': axial_force,
-                           'diffPressure': pressure_differential})
+        gen_production(self, p_res, rho_prod_fluid, rho_ann_fluid, rho_packerfluid, md_toc, tvd_packer, tvd_perf,
+                       poisson, f_setting)
 
     def injection(self, whp, rho_injectionfluid, rho_mud, temp, t_k, alpha=17e-6, poisson=0.3, f_setting=0):
-
-        from .load_cases import stimulation
-
-        whp = convert_unit(whp, unit_from='psi', unit_to='bar')
-        e = convert_unit(self.e, unit_from='psi', unit_to='bar')
-
-        axial_force, pressure_differential = stimulation(self.trajectory, self.toc_md, self.od, self.id, e,
-                                                         whp, rho_injectionfluid, rho_mud, rho_mud, temp, t_k,
-                                                         alpha=alpha, poisson=poisson, f_setting=f_setting)
-
-        pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
-
-        axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
-
-        self.loads.append({'description': 'Injection', 'axialForce': axial_force,
-                           'diffPressure': pressure_differential})
+        gen_injection(self, whp, rho_injectionfluid, rho_mud, temp, t_k, alpha, poisson, f_setting)
 
     def add_trajectory(self, wellbore):
 
