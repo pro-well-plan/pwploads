@@ -4,6 +4,7 @@ from .collapse_calcs import calc_collapse_pressure
 from .von_mises import vme
 from .design_factors import api_limits
 from .connections import get_conn_limits
+from .utilities import *
 
 
 class Casing(object):
@@ -351,6 +352,7 @@ class Casing(object):
                            f_setting=settings['forces']['preloading'])
 
         define_max_loads(self.loads)
+        define_min_df(self)
 
     def define_settings(self, settings):
 
@@ -371,57 +373,3 @@ class Casing(object):
                     default[key][item] = settings[key][item]
 
         self.settings = default
-
-
-def gen_msgs(pipe):
-    necessary_inputs = {'Displacement to gas': {'resPressure': 'Reservoir pressure is missing',
-                                                'resTvd': 'Reservoir depth (tvd) is missing'},
-                        'Production': {'resPressure': 'Reservoir pressure is missing',
-                                       'packerTvd': 'Packer depth (tvd) is missing',
-                                       'perforationsTvd': 'Depth (tvd) of perforations is missing'},
-                        'Injection': {'whp': 'Wellhead Pressure during injection is missing',
-                                      'injectionFluid': 'Injection fluid density is missing'}}
-
-    missing_loads = {}
-
-    for load, reference in necessary_inputs.items():
-        msgs = []
-        for parameter, msg in reference.items():
-            status = 0
-
-            for section in pipe.settings.values():
-                if parameter in section:
-                    status = 1
-
-            if status == 0:         # parameter was not found in settings
-                msgs.append(msg)
-
-        if len(msgs) > 0:
-            missing_loads[load] = msgs
-
-    pipe.msgs = missing_loads
-
-
-def define_max_loads(loads):
-    for load in loads:
-        min_level = {'force': min(load['axialForce']), 'pressure': min(load['diffPressure'])}
-        max_level = {'force': max(load['axialForce']), 'pressure': max(load['diffPressure'])}
-        max_loads = {}
-        if min_level['force'] < 0:
-            max_loads['compression'] = min_level['force']
-        else:
-            max_loads['compression'] = None
-        if max_level['force'] > 0:
-            max_loads['tension'] = max_level['force']
-        else:
-            max_loads['tension'] = None
-        if min_level['pressure'] < 0:
-            max_loads['collapse'] = min_level['pressure']
-        else:
-            max_loads['collapse'] = None
-        if max_level['pressure'] > 0:
-            max_loads['burst'] = max_level['pressure']
-        else:
-            max_loads['burst'] = None
-
-        load['maxLoads'] = max_loads
