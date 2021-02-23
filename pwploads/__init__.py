@@ -23,7 +23,7 @@ class Casing(object):
         area (float): effective area [in^2]
         shoe (float or int): measured depth at shoe [m]
         ellipse (list): triaxial points [x, y+, y-]
-        csg_loads (list): list of loads that have been run
+        loads (list): list of loads that have been run
         nominal_weight (float or int): weight per unit length [kg/m]
         trajectory (obj): wellbore trajectory object
         api_lines (list): API limits coordinates [x, y]
@@ -78,7 +78,7 @@ class Casing(object):
                        'tensionDF': yield_s * self.area / df['pipe']['tension']}
 
         self.ellipse = vme(yield_s, self.area, self.id, self.od, df['pipe']['triaxial'])
-        self.csg_loads = []
+        self.loads = []
         self.trajectory = None
         self.settings = None
         self.msgs = None
@@ -108,7 +108,7 @@ class Casing(object):
             a (float): ratio of maximum running speed to average running speed
 
         Returns:
-            None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
+            None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
         """
 
         from .load_cases import running
@@ -125,9 +125,8 @@ class Casing(object):
 
         axial_force = [x * 1000 / 4.448 for x in axial_force]   # kN to lbf
 
-        self.csg_loads.append(
-            ["Running", axial_force, pressure_differential]
-        )
+        self.loads.append({'description': 'Running', 'axialForce': axial_force,
+                           'diffPressure': pressure_differential})
 
     def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5, f_ov=0.0):
         """
@@ -142,7 +141,7 @@ class Casing(object):
             f_ov (int or float): overpull force (often during freeing of stuck pipe), kN.
 
         Returns:
-            None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
+            None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
         """
 
         from .load_cases import overpull
@@ -159,9 +158,8 @@ class Casing(object):
 
         axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
 
-        self.csg_loads.append(
-            ["Overpull", axial_force, pressure_differential]
-        )
+        self.loads.append({'description': 'Overpull', 'axialForce': axial_force,
+                           'diffPressure': pressure_differential})
 
     def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8, f_pre=0.0, p_test=0.0):
         """
@@ -175,7 +173,7 @@ class Casing(object):
             p_test (int or float): testing pressure, psi
 
         Returns:
-            None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
+            None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
         """
 
         from .load_cases import green_cement_pressure_test
@@ -197,9 +195,8 @@ class Casing(object):
 
         axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
 
-        self.csg_loads.append(
-            ["Green Cement", axial_force, pressure_differential]
-        )
+        self.loads.append({'description': 'Green Cement Pressure Test', 'axialForce': axial_force,
+                           'diffPressure': pressure_differential})
 
     def cementing(self, rho_cement=1.8, rho_fluid=1.3, f_pre=0.0):
         """
@@ -211,7 +208,7 @@ class Casing(object):
             f_pre (int or float): pre-loading force applied to the casing string if necessary, kN
 
         Returns:
-            None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
+            None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
         """
 
         from .load_cases import cementing
@@ -225,9 +222,8 @@ class Casing(object):
 
         axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
 
-        self.csg_loads.append(
-            ["Cementing", axial_force, pressure_differential]
-        )
+        self.loads.append({'description': 'Cementing', 'axialForce': axial_force,
+                           'diffPressure': pressure_differential})
 
     def displacement_gas(self, p_res, tvd_res, rho_gas=0.5, rho_mud=1.4):
         """
@@ -240,7 +236,7 @@ class Casing(object):
             :param rho_mud: (float) mud density, sg
 
         Returns:
-            None. It adds the load case results in csg_loads as [load case name, axial_force, pressure_differential]
+            None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
         """
 
         from .load_cases import gas_filled
@@ -255,9 +251,8 @@ class Casing(object):
 
         axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
 
-        self.csg_loads.append(
-            ["Displacement to gas", axial_force, pressure_differential]
-        )
+        self.loads.append({'description': 'Displacement to gas', 'axialForce': axial_force,
+                           'diffPressure': pressure_differential})
 
     def production(self, p_res, rho_prod_fluid, rho_ann_fluid, rho_packerfluid, md_toc, tvd_packer, tvd_perf,
                    poisson=0.3, f_setting=0.0):
@@ -275,9 +270,8 @@ class Casing(object):
 
         axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
 
-        self.csg_loads.append(
-            ["Production", axial_force, pressure_differential]
-        )
+        self.loads.append({'description': 'Production', 'axialForce': axial_force,
+                           'diffPressure': pressure_differential})
 
     def injection(self, whp, rho_injectionfluid, rho_mud, temp, t_k, alpha=17e-6, poisson=0.3, f_setting=0):
 
@@ -294,9 +288,8 @@ class Casing(object):
 
         axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
 
-        self.csg_loads.append(
-            ["Injection", axial_force, pressure_differential]
-        )
+        self.loads.append({'description': 'Injection', 'axialForce': axial_force,
+                           'diffPressure': pressure_differential})
 
     def add_trajectory(self, wellbore):
 
