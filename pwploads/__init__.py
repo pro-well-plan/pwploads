@@ -101,41 +101,6 @@ class Casing(object):
                                       'burst': df['pipe']['burst'],
                                       'collapse': df['pipe']['collapse']}}
 
-    def running(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5):
-        gen_running(self, tvd_fluid, rho_fluid, v_avg, fric, a)
-
-    def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5, f_ov=0.0):
-        gen_overpull(self, tvd_fluid, rho_fluid, v_avg, fric, a, f_ov)
-
-    def green_cement(self, rho_fluid_int=1.2, rho_cement=1.8, f_pre=0.0, p_test=0.0):
-        gen_green_cement(self, rho_fluid_int, rho_cement, f_pre, p_test)
-
-    def cementing(self, rho_cement=1.8, rho_fluid=1.3, f_pre=0.0):
-        gen_cementing(self, rho_cement, rho_fluid, f_pre)
-
-    def displacement_gas(self, p_res, tvd_res, rho_gas=0.5, rho_mud=1.4):
-        gen_displacement_gas(self, p_res, tvd_res, rho_gas, rho_mud)
-
-    def production(self, p_res, rho_prod_fluid, rho_ann_fluid, rho_packerfluid, md_toc, tvd_packer, tvd_perf,
-                   poisson=0.3, f_setting=0.0):
-        gen_production(self, p_res, rho_prod_fluid, rho_ann_fluid, rho_packerfluid, md_toc, tvd_packer, tvd_perf,
-                       poisson, f_setting)
-
-    def injection(self, whp, rho_injectionfluid, rho_mud, temp, t_k, alpha=17e-6, poisson=0.3, f_setting=0):
-        gen_injection(self, whp, rho_injectionfluid, rho_mud, temp, t_k, alpha, poisson, f_setting)
-
-    def full_evacuation(self, rho_prod_fluid, rho_mud, md_toc, poisson=0.3, f_setting=0.0):
-        gen_full_evacuation(self, rho_prod_fluid, rho_mud, md_toc, poisson, f_setting)
-
-    def pressure_test(self, whp, effective_diameter, rho_testing_fluid, rho_mud):
-        gen_pressure_test(self, whp, effective_diameter, rho_testing_fluid, rho_mud)
-
-    def gas_kick(self, p_res, tvd_res, rho_gas=0.5, rho_mud=1.4, vol_kick_initial=20):
-        gen_gas_kick(self, p_res, tvd_res, rho_gas, rho_mud, vol_kick_initial)
-
-    def mud_drop(self, rho_mud=1.4, rho_mud_new=1.1):
-        gen_mud_drop(self, rho_mud, rho_mud_new)
-
     def add_trajectory(self, survey):
 
         trajectory = wp.load(survey, equidistant=False)
@@ -162,60 +127,61 @@ class Casing(object):
         config = self.settings
         gen_msgs(self)
 
-        self.overpull(rho_fluid=[config['densities']['mud']], v_avg=config['tripping']['speed'],
-                      fric=config['tripping']['slidingFriction'], a=config['tripping']['maxSpeedRatio'],
-                      f_ov=int(config['forces']['overpull']))
+        gen_overpull(self, rho_fluid=[config['densities']['mud']], v_avg=config['tripping']['speed'],
+                     fric=config['tripping']['slidingFriction'], a=config['tripping']['maxSpeedRatio'],
+                     f_ov=int(config['forces']['overpull']))
 
-        self.running(rho_fluid=[config['densities']['mud']], v_avg=config['tripping']['speed'],
-                     fric=config['tripping']['slidingFriction'], a=config['tripping']['maxSpeedRatio'])
+        gen_running(self, rho_fluid=[config['densities']['mud']], v_avg=config['tripping']['speed'],
+                    fric=config['tripping']['slidingFriction'], a=config['tripping']['maxSpeedRatio'])
 
-        self.green_cement(rho_fluid_int=config['densities']['cementDisplacingFluid'],
-                          rho_cement=config['densities']['cement'], f_pre=config['forces']['preloading'],
-                          p_test=config['testing']['cementingPressure'])
+        gen_green_cement(self, rho_fluid_int=config['densities']['cementDisplacingFluid'],
+                         rho_cement=config['densities']['cement'], f_pre=config['forces']['preloading'],
+                         p_test=config['testing']['cementingPressure'])
 
-        self.cementing(rho_cement=config['densities']['cement'],
-                       rho_fluid=config['densities']['cementDisplacingFluid'],
-                       f_pre=config['forces']['preloading'])
+        gen_cementing(self, rho_cement=config['densities']['cement'],
+                      rho_fluid=config['densities']['cementDisplacingFluid'],
+                      f_pre=config['forces']['preloading'])
 
-        self.full_evacuation(rho_prod_fluid=config['production']['fluidDensity'],
-                             rho_mud=config['densities']['mud'], md_toc=self.toc_md,
-                             poisson=config['production']['poisson'],
-                             f_setting=config['forces']['preloading'])
-
-        self.mud_drop(rho_mud=config['densities']['mud'], rho_mud_new=config['densities']['mudDropTo'])
-
-        if 'Displacement to gas' not in self.msgs:
-            self.displacement_gas(p_res=config['production']['resPressure'], tvd_res=config['production']['resTvd'],
-                                  rho_gas=config['densities']['gasKick'], rho_mud=config['densities']['mud'])
-
-        if 'Production' not in self.msgs:
-            self.production(p_res=config['production']['resPressure'],
-                            rho_prod_fluid=config['production']['fluidDensity'],
-                            rho_ann_fluid=config['densities']['completionFluid'],
-                            rho_packerfluid=config['production']['packerFluidDensity'],
-                            md_toc=self.toc_md,
-                            tvd_packer=config['production']['packerTvd'],
-                            tvd_perf=config['production']['perforationsTvd'],
+        gen_full_evacuation(self, rho_prod_fluid=config['production']['fluidDensity'],
+                            rho_mud=config['densities']['mud'], md_toc=self.toc_md,
                             poisson=config['production']['poisson'],
                             f_setting=config['forces']['preloading'])
 
-        if 'Injection' not in self.msgs:
-            self.injection(whp=config['injection']['whp'], rho_injectionfluid=config['densities']['injectionFluid'],
-                           rho_mud=config['densities']['mud'], temp=config['temp'],
-                           t_k=config['production']['wellHeadTemp'],
+        gen_mud_drop(self, rho_mud=config['densities']['mud'], rho_mud_new=config['densities']['mudDropTo'])
+
+        if 'Displacement to gas' not in self.msgs:
+            gen_displacement_gas(self, p_res=config['production']['resPressure'], tvd_res=config['production']['resTvd'],
+                                 rho_gas=config['densities']['gasKick'], rho_mud=config['densities']['mud'])
+
+        if 'Production' not in self.msgs:
+            gen_production(self, p_res=config['production']['resPressure'],
+                           rho_prod_fluid=config['production']['fluidDensity'],
+                           rho_ann_fluid=config['densities']['completionFluid'],
+                           rho_packerfluid=config['production']['packerFluidDensity'],
+                           md_toc=self.toc_md,
+                           tvd_packer=config['production']['packerTvd'],
+                           tvd_perf=config['production']['perforationsTvd'],
                            poisson=config['production']['poisson'],
                            f_setting=config['forces']['preloading'])
 
+        if 'Injection' not in self.msgs:
+            gen_injection(self, whp=config['injection']['whp'],
+                          rho_injectionfluid=config['densities']['injectionFluid'],
+                          rho_mud=config['densities']['mud'], temp=config['temp'],
+                          t_k=config['production']['wellHeadTemp'],
+                          poisson=config['production']['poisson'],
+                          f_setting=config['forces']['preloading'])
+
         if 'Pressure Test' not in self.msgs:
-            self.pressure_test(whp=config['testing']['testPressure'],
-                               effective_diameter=config['testing']['pipeDiameter'],
-                               rho_testing_fluid=config['testing']['testFluidDensity'],
-                               rho_mud=config['densities']['mud'])
+            gen_pressure_test(self, whp=config['testing']['testPressure'],
+                              effective_diameter=config['testing']['pipeDiameter'],
+                              rho_testing_fluid=config['testing']['testFluidDensity'],
+                              rho_mud=config['densities']['mud'])
 
         if 'Gas Kick' not in self.msgs:
-            self.gas_kick(p_res=config['production']['resPressure'], tvd_res=config['production']['resTvd'],
-                          rho_gas=config['densities']['gasKick'], rho_mud=config['densities']['mud'],
-                          vol_kick_initial=config['influx']['gasKickVolume'])
+            gen_gas_kick(self, p_res=config['production']['resPressure'], tvd_res=config['production']['resTvd'],
+                         rho_gas=config['densities']['gasKick'], rho_mud=config['densities']['mud'],
+                         vol_kick_initial=config['influx']['gasKickVolume'])
 
         define_max_loads(self.loads)
         define_min_df(self)
@@ -223,7 +189,7 @@ class Casing(object):
 
     def define_settings(self, settings):
 
-        default = {'densities': {'mud': 1.5, 'cement': 1.8, 'cementDisplacingFluid': 1.3, 'gasKick': 0.5,
+        default = {'densities': {'mud': 1.5, 'cement': 1.9, 'cementDisplacingFluid': 1.6, 'gasKick': 0.5,
                                  'completionFluid': 1.8, 'injectionFluid': 1.3, 'mudDropTo': 1.1},
                    'tripping': {'slidingFriction': 0.24, 'speed': 0.3, 'maxSpeedRatio': 1.5},
                    'production': {'fluidDensity': 0.9, 'packerFluidDensity': 1.3, 'poisson': 0.3, 'wellHeadTemp': 5},
