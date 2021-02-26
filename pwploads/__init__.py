@@ -151,7 +151,8 @@ class Casing(object):
         gen_mud_drop(self, rho_mud=config['densities']['mud'], rho_mud_new=config['densities']['mudDropTo'])
 
         if 'Displacement to gas' not in self.msgs:
-            gen_displacement_gas(self, p_res=config['production']['resPressure'], tvd_res=config['production']['resTvd'],
+            gen_displacement_gas(self, p_res=config['production']['resPressure'],
+                                 tvd_res=config['production']['resTvd'],
                                  rho_gas=config['densities']['gasKick'], rho_mud=config['densities']['mud'])
 
         if 'Production' not in self.msgs and self.pipe_class in [None, 'Production']:

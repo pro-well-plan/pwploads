@@ -2,23 +2,19 @@ from unittest import TestCase
 import pwploads
 
 
-def default_casing_with_trajectory():
-    pipe = {'od': 8,
-            'id': 7.2,
-            'shoeDepth': 1500,
-            'tocMd': 1000,
-            'weight': 100,
-            'yield': 80000,
-            'e': 29e6,
-            'top': 500}
-    df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1, 'triaxial': 1.25},
-          'connection': {'tension': 1.0, 'compression': 1.0}}
+pipe = {'od': 8,
+        'id': 7.2,
+        'shoeDepth': 1500,
+        'tocMd': 1000,
+        'weight': 100,
+        'yield': 80000,
+        'e': 29e6,
+        'top': 500}
+df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1, 'triaxial': 1.25},
+      'connection': {'tension': 1.0, 'compression': 1.0}}
 
-    casing = pwploads.Casing(pipe, factors=df)
-    casing.add_trajectory('TrajectorySample.xlsx')
-
-    return casing
-
+casing = pwploads.Casing(pipe, factors=df)
+casing.add_trajectory('TrajectorySample.xlsx')
 
 settings = {'densities': {'mud': 1.7,
                           'cement': 1.8,
@@ -46,7 +42,6 @@ settings = {'densities': {'mud': 1.7,
                      'target': {'tvd': 1500, 'temp': 160}}
             }
 
-casing = default_casing_with_trajectory()
 casing.run_loads(settings)
 
 
