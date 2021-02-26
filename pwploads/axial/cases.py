@@ -23,7 +23,7 @@ def running(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, r
     f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, tvd_fluid, rho_fluid, tvd_fluid, rho_fluid)
     f_sh = shock_load(trajectory.tvd, v_avg, od_csg, id_csg, nominal_weight, e, a)
     f_d = drag(trajectory, od_csg, id_csg, shoe_depth, nominal_weight, tvd_fluid, rho_fluid, fric)
-    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
+    f_be = bending(od_csg, trajectory.dls, trajectory.info['dlsResolution'], e)
 
     force = [x1 - x2 + x3 - x4 + x5 for x1, x2, x3, x4, x5 in zip(f_w, f_bu, f_sh, f_d, f_be)]
 
@@ -53,7 +53,7 @@ def pulling(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, r
     f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, tvd_fluid, rho_fluid, tvd_fluid, rho_fluid)
     f_sh = shock_load(trajectory.tvd, v_avg, od_csg, id_csg, nominal_weight, e, a)
     f_d = drag(trajectory, od_csg, id_csg, shoe_depth, nominal_weight, tvd_fluid, rho_fluid, fric, 'hoisting')
-    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
+    f_be = bending(od_csg, trajectory.dls, trajectory.info['dlsResolution'], e)
 
     force = [x1 - x2 + x3 + x4 + f_ov + x5 for x1, x2, x3, x4, x5 in zip(f_w, f_bu, f_sh, f_d, f_be)]
 
@@ -76,7 +76,7 @@ def fluid_filled(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_fluid_ext,
 
     f_w = air_weight(tvd, nominal_weight)
     f_bu = buoyancy_force(tvd, od_csg, id_csg, [], [rho_fluid_ext], [], [rho_fluid_int])
-    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
+    f_be = bending(od_csg, trajectory.dls, trajectory.info['dlsResolution'], e)
 
     force = [x1 - x2 + x3 for x1, x2, x3 in zip(f_w, f_bu, f_be)]
 
@@ -99,7 +99,7 @@ def cementation(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_flui
 
     f_w = air_weight(trajectory.tvd, nominal_weight)
     f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, [], [rho_cement], [], [rho_fluid])
-    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
+    f_be = bending(od_csg, trajectory.dls, trajectory.info['dlsResolution'], e)
 
     force = [x1 - x2 + f_pre + x3 for x1, x2, x3 in zip(f_w, f_bu, f_be)]
 
@@ -123,7 +123,7 @@ def green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_flu
 
     f_w = air_weight(trajectory.tvd, nominal_weight)
     f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, [], [rho_cement], [], [rho_fluid_int])
-    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
+    f_be = bending(od_csg, trajectory.dls, trajectory.info['dlsResolution'], e)
 
     force = [x1 - x2 + f_h + f_pre + x3 for x1, x2, x3 in zip(f_w, f_bu, f_be)]
 
@@ -146,7 +146,7 @@ def production(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext,
     """
 
     f_bl = ballooning(trajectory.md, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, poisson)
-    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
+    f_be = bending(od_csg, trajectory.dls, trajectory.info['dlsResolution'], e)
 
     force = [f_setting + x1 + x2 for x1, x2 in zip(f_bl, f_be)]
 
@@ -176,7 +176,7 @@ def injection(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, 
 
     f_th = thermal_load(trajectory, od_csg, id_csg, t_k, temp, alpha, e)
     f_bl = ballooning(trajectory.md, md_toc, od_csg, id_csg, rho_fluid_int, rho_fluid_ext, poisson)
-    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
+    f_be = bending(od_csg, trajectory.dls, trajectory.info['dlsResolution'], e)
 
     force = [f_setting + x1 + x2 + x3 for x1, x2, x3 in zip(f_bl, f_th, f_be)]
 
@@ -194,7 +194,7 @@ def pressure_test(trajectory, whp, effective_diameter, od_csg,  e):
     :return: total axial force profile, kN
     """
 
-    f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
+    f_be = bending(od_csg, trajectory.dls, trajectory.info['dlsResolution'], e)
     f_h = pressure_testing(trajectory.tvd, whp, effective_diameter)
 
     force = [x1 + x2 for x1, x2 in zip(f_h, f_be)]

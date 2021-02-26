@@ -6,6 +6,7 @@ from .design_factors import api_limits
 from .connections import get_conn_limits
 from .utilities import *
 from .prepare_cases import *
+import well_profile as wp
 
 
 class Casing(object):
@@ -124,15 +125,16 @@ class Casing(object):
     def pressure_test(self, whp, effective_diameter, rho_testing_fluid, rho_mud):
         gen_pressure_test(self, whp, effective_diameter, rho_testing_fluid, rho_mud)
 
-    def add_trajectory(self, wellbore):
+    def add_trajectory(self, survey):
 
-        idx = [wellbore.trajectory.index(x) for x in wellbore.trajectory if self.top <= x['md'] <= self.shoe]
-        wellbore.md = [x['md'] - self.top for x in wellbore.trajectory][idx[0]:idx[-1]+1]
-        wellbore.tvd = [x['tvd'] - self.top for x in wellbore.trajectory][idx[0]:idx[-1]+1]
-        wellbore.inclination = [x['inc'] for x in wellbore.trajectory][idx[0]:idx[-1]+1]
-        wellbore.azimuth = [x['azi'] for x in wellbore.trajectory][idx[0]:idx[-1]+1]
-        wellbore.dls = [x['dls'] for x in wellbore.trajectory][idx[0]:idx[-1]+1]
-        self.trajectory = wellbore
+        trajectory = wp.load(survey)
+        idx = [trajectory.trajectory.index(x) for x in trajectory.trajectory if self.top <= x['md'] <= self.shoe]
+        trajectory.md = [x['md'] - self.top for x in trajectory.trajectory][idx[0]:idx[-1]+1]
+        trajectory.tvd = [x['tvd'] - self.top for x in trajectory.trajectory][idx[0]:idx[-1]+1]
+        trajectory.inclination = [x['inc'] for x in trajectory.trajectory][idx[0]:idx[-1]+1]
+        trajectory.azimuth = [x['azi'] for x in trajectory.trajectory][idx[0]:idx[-1]+1]
+        trajectory.dls = [x['dls'] for x in trajectory.trajectory][idx[0]:idx[-1]+1]
+        self.trajectory = trajectory
 
     def plot(self, plot_type='plotly'):
         from .plot import create_plotly_figure, create_pyplot_figure
