@@ -46,17 +46,24 @@ settings = {'densities': {'mud': 1.7,
                      'target': {'tvd': 1500, 'temp': 160}}
             }
 
+casing = default_casing_with_trajectory()
+casing.run_loads(settings)
+
 
 class TestCasing(TestCase):
     def test_run_loads(self):
-        casing = default_casing_with_trajectory()
-        casing.run_loads(settings)
-
         cases = ['Overpull', 'Running', 'Green Cement Pressure Test', 'Cementing', 'Full Evacuation', 'Mud Drop',
                  'Displacement to gas', 'Production', 'Injection', 'Pressure Test', 'Gas kick']
 
-        for case in cases:
+        for case in [load['description'] for load in casing.loads]:
             self.assertTrue(case in cases)
 
-        print(casing.safety_factors)
+    def test_safety_factors(self):
+        for sf in casing.safety_factors.values():
+            self.assertTrue(sf is not None)
+            self.assertIsInstance(sf, dict)
+            self.assertTrue(sf['safetyFactor'] < 10)
 
+    def test_msgs(self):
+        self.assertIsInstance(casing.msgs, dict)
+        self.assertTrue(len(casing.msgs) == 0)
