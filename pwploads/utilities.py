@@ -11,7 +11,9 @@ def gen_msgs(pipe):
                                       'injectionFluid': 'Injection fluid density is missing'},
                         'Pressure Test': {'testFluidDensity': 'Fluid density for pressure test is missing',
                                           'testPressure': 'Testing pressure is missing',
-                                          'pipeDiameter': 'Effective pipe diameter is missing'}}
+                                          'pipeDiameter': 'Effective pipe diameter is missing'},
+                        'Gas Kick': {'resPressure': 'Reservoir pressure is missing',
+                                     'resTvd': 'Reservoir depth (tvd) is missing'}}
 
     missing_loads = {}
 

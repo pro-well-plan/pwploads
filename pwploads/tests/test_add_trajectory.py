@@ -1,5 +1,4 @@
 from unittest import TestCase
-import well_profile as wp
 import pwploads
 
 
@@ -16,8 +15,7 @@ def default_casing_with_trajectory():
           'connection': {'tension': 1.0, 'compression': 1.0}}
 
     casing = pwploads.Casing(pipe, factors=df)
-    trajectory = wp.get(2000, profile='J', build_angle=20, kop=800, eob=1300)
-    casing.add_trajectory(trajectory)
+    casing.add_trajectory('TrajectorySample.xlsx')
 
     return casing, pipe
 

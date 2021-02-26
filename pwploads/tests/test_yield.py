@@ -20,7 +20,7 @@ def default_casing(yield_s):
 
 
 class TestCasing(TestCase):
-    def test_add_trajectory(self):
+    def test_different_yield(self):
         for yield_s in [45000, 50000, 60000, 80000, 100000, 120000]:
             pipe = default_casing(yield_s)
             fig = pipe.plot()

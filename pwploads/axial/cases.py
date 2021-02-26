@@ -60,11 +60,10 @@ def pulling(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, r
     return force
 
 
-def fluid_filled(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_fluid_ext, rho_fluid_int, e):
+def fluid_filled(trajectory, nominal_weight, od_csg, id_csg, rho_fluid_ext, rho_fluid_int, e):
     """
     Calculate axial load when casing is filled with a specific fluid.
     :param trajectory: wellpath object
-    :param tvd: list - true vertical depth, m
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
@@ -74,8 +73,8 @@ def fluid_filled(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_fluid_ext,
     :return: total axial force profile, kN
     """
 
-    f_w = air_weight(tvd, nominal_weight)
-    f_bu = buoyancy_force(tvd, od_csg, id_csg, [], [rho_fluid_ext], [], [rho_fluid_int])
+    f_w = air_weight(trajectory.tvd, nominal_weight)
+    f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, [], [rho_fluid_ext], [], [rho_fluid_int])
     f_be = bending(od_csg, trajectory.dls, trajectory.info['dlsResolution'], e)
 
     force = [x1 - x2 + x3 for x1, x2, x3 in zip(f_w, f_bu, f_be)]

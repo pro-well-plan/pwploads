@@ -1,6 +1,5 @@
 from unittest import TestCase
 import pwploads
-import well_profile as wp
 
 csg_od = 8
 csg_id = 7
@@ -18,8 +17,7 @@ df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1
       'connection': {'tension': 1.0, 'compression': 1.0}}
 
 casing = pwploads.Casing(pipe, factors=df)
-trajectory = wp.get(2000, profile='J', build_angle=20, kop=800, eob=1300)
-casing.add_trajectory(trajectory)
+casing.add_trajectory('TrajectorySample.xlsx')
 
 casing.green_cement(rho_fluid_int=1.2,
                     rho_cement=1.8,

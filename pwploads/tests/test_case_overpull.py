@@ -1,6 +1,5 @@
 from unittest import TestCase
 import pwploads
-import well_profile as wp
 
 pipe = {'od': 8,
         'id': 7.2,
@@ -14,8 +13,7 @@ df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1
       'connection': {'tension': 1.0, 'compression': 1.0}}
 
 casing = pwploads.Casing(pipe, factors=df)
-trajectory = wp.get(2000, profile='J', build_angle=20, kop=800, eob=1300)
-casing.add_trajectory(trajectory)
+casing.add_trajectory('TrajectorySample.xlsx')
 
 casing.overpull(tvd_fluid=[300],    # fluid of 1.2 sg before reaching 300 m depth
                 rho_fluid=[1.2, 1.5],

@@ -42,7 +42,7 @@ def drilling_influx_2(tvd, rho_mud, tvd_next_section, fraction=0.5):
     return pressure_differential
 
 
-def drilling_influx_3(tvd, rho_mud, id_csg, od_dp, tvd_kick, kick_intensity, rho_kick_initial, vol_kick_initial):
+def drilling_influx_3(tvd, rho_mud, id_csg, od_dp, p_res, tvd_res, vol_kick_initial):
     """
     Calculate differential pressure profile with influx during drilling case 3 (gas kick profile -
     one fluid behind the casing)
@@ -50,9 +50,8 @@ def drilling_influx_3(tvd, rho_mud, id_csg, od_dp, tvd_kick, kick_intensity, rho
     :param rho_mud: mud density, sg
     :param id_csg: casing inner diameter, in
     :param od_dp: drill pipe outer diameter, in
-    :param tvd_kick: tvd of influx, m
-    :param kick_intensity: required increase in mud density to control the kick, sg
-    :param rho_kick_initial: influx initial density, sg
+    :param p_res: reservoir pressure, bar
+    :param tvd_res: tvd at reservoir, m
     :param vol_kick_initial: influx initial volume, m3
     :return: differential pressure profile, Pa
     """
@@ -60,10 +59,10 @@ def drilling_influx_3(tvd, rho_mud, id_csg, od_dp, tvd_kick, kick_intensity, rho
     from .pressure_internal import gas_kick
     from .pressure_external import onefluid_behindcasing
 
-    p_int = gas_kick(tvd, rho_mud, kick_intensity, tvd_kick, vol_kick_initial, rho_kick_initial, id_csg, od_dp)
+    p_int = gas_kick(tvd, rho_mud, p_res, tvd_res, vol_kick_initial, id_csg, od_dp)
     p_ext = onefluid_behindcasing(tvd, rho_mud)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 

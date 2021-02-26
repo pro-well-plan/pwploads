@@ -1,4 +1,6 @@
 from ..unit_converter import convert_unit
+from math import pi
+from numpy import array
 g = 9.81        # gravity constant, [m/s2]
 
 
@@ -37,35 +39,33 @@ def frac_shoe_gas_grad_above(tvd, frac_gradient, rho_fluid):
     return p_int
 
 
-def gas_kick(tvd, rho_mud, kick_intensity, tvd_kick, vol_kick_initial, rho_kick_initial, id_csg, od_dp):
+def gas_kick(tvd, rho_mud, p_res, tvd_res, vol_kick_initial, id_csg, od_dp):
     """
     Calculate internal pressure profile when circulating out of a kick using the driller’s method.
     :param tvd: list - true vertical depth, m
     :param rho_mud: mud density, sg
-    :param kick_intensity: required increase in mud density to control the kick, sg
-    :param tvd_kick: tvd of influx, m
+    :param p_res: reservoir pressure, bar
+    :param tvd_res: tvd at reservoir, m
     :param vol_kick_initial: influx initial volume, m3
-    :param rho_kick_initial: influx initial density, sg
     :param id_csg: casing inner diameter, in
     :param od_dp: drill pipe outer diameter, in
     :return: internal pressure profile, Pa
     """
 
-    from math import pi
-    from numpy import array
-
+    p_res = convert_unit(p_res, unit_from="bar", unit_to="Pa")
     rho_mud = convert_unit(rho_mud, unit_from="sg", unit_to="kg/m3")
-    kick_intensity = convert_unit(kick_intensity, unit_from="sg", unit_to="kg/m3")
-    rho_kick_initial = convert_unit(rho_kick_initial, unit_from="sg", unit_to="kg/m3")
 
-    bhp = g * (rho_mud + kick_intensity) * tvd_kick     # bottom hole pressure [Pa]
+    rho_kick_initial = (p_res / (tvd_res * g))
+    kick_intensity = abs(rho_kick_initial - rho_mud)
+
+    bhp = g * (rho_mud + kick_intensity) * tvd_res    # bottom hole pressure [Pa]
 
     p = [g * rho_mud * x for x in tvd]      # hydrostatic pressure profile [Pa]
 
     vol_kick = [vol_kick_initial * (bhp / x) for x in p]  # * (temp/temp_kick) * (z/z_kick) [m3]
     rho_kick = [rho_kick_initial * (vol_kick_initial / x) for x in vol_kick]
 
-    p_basekick = [bhp - g * rho_mud * (tvd_kick - x) for x in tvd]      # [Pa]
+    p_basekick = [bhp - g * rho_mud * (tvd_res - x) for x in tvd]      # [Pa]
 
     ir_csg = convert_unit(id_csg/2, unit_from="in", unit_to="m")
     or_dp = convert_unit(od_dp/2, unit_from="in", unit_to="m")
@@ -78,7 +78,7 @@ def gas_kick(tvd, rho_mud, kick_intensity, tvd_kick, vol_kick_initial, rho_kick_
 
     whp = [x - g * rho_mud * y for x, y in zip(p_topkick, tvd_topkick)]
 
-    p_int = [max(whp) + ((bhp - max(whp)) / tvd_kick) * x for x in tvd]
+    p_int = [max(whp) + ((bhp - max(whp)) / tvd_res) * x for x in tvd]
 
     return p_int
 
