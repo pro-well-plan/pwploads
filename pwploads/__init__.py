@@ -19,15 +19,15 @@ class Casing(object):
         factors (dict): set define factors for pipe and connection.
 
     Attributes:
-        od (float): outer diameter of the casing [in]
-        id (float): inner diameter of the casing [in]
+        od (num): outer diameter of the casing [in]
+        id (num): inner diameter of the casing [in]
         thickness (str or None): outer diameter of the casing [in]
-        dt (float): ratio --> outer diameter / thickness
-        area (float): effective area [in^2]
-        shoe (float or int): measured depth at shoe [m]
+        dt (num): ratio --> outer diameter / thickness
+        area (num): effective area [in^2]
+        shoe (num): measured depth at shoe [m]
         ellipse (list): triaxial points [x, y+, y-]
         loads (list): list of loads that have been run
-        nominal_weight (float or int): weight per unit length [kg/m]
+        nominal_weight (num): weight per unit length [kg/m]
         trajectory (obj): wellbore trajectory object
         api_lines (list): API limits coordinates [x, y]
         design_factor (dict): design factors used 'vme', 'api'
@@ -142,10 +142,11 @@ class Casing(object):
                       rho_fluid=config['densities']['cementDisplacingFluid'],
                       f_pre=config['forces']['preloading'])
 
-        gen_full_evacuation(self, rho_prod_fluid=config['production']['fluidDensity'],
-                            rho_mud=config['densities']['mud'], md_toc=self.toc_md,
-                            poisson=config['production']['poisson'],
-                            f_setting=config['forces']['preloading'])
+        if self.pipe_class in [None, 'Production']:
+            gen_full_evacuation(self, rho_prod_fluid=config['production']['fluidDensity'],
+                                rho_mud=config['densities']['mud'], md_toc=self.toc_md,
+                                poisson=config['production']['poisson'],
+                                f_setting=config['forces']['preloading'])
 
         gen_mud_drop(self, rho_mud=config['densities']['mud'], rho_mud_new=config['densities']['mudDropTo'])
 
@@ -153,7 +154,7 @@ class Casing(object):
             gen_displacement_gas(self, p_res=config['production']['resPressure'], tvd_res=config['production']['resTvd'],
                                  rho_gas=config['densities']['gasKick'], rho_mud=config['densities']['mud'])
 
-        if 'Production' not in self.msgs:
+        if 'Production' not in self.msgs and self.pipe_class in [None, 'Production']:
             gen_production(self, p_res=config['production']['resPressure'],
                            rho_prod_fluid=config['production']['fluidDensity'],
                            rho_ann_fluid=config['densities']['completionFluid'],
@@ -164,7 +165,7 @@ class Casing(object):
                            poisson=config['production']['poisson'],
                            f_setting=config['forces']['preloading'])
 
-        if 'Injection' not in self.msgs:
+        if 'Injection' not in self.msgs and self.pipe_class in [None, 'Production']:
             gen_injection(self, whp=config['injection']['whp'],
                           rho_injectionfluid=config['densities']['injectionFluid'],
                           rho_mud=config['densities']['mud'], temp=config['temp'],
