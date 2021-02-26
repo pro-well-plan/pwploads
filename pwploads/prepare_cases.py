@@ -70,15 +70,14 @@ def gen_overpull(csg, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.
                       'diffPressure': pressure_differential})
 
 
-def gen_green_cement(csg, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8, f_pre=0.0, p_test=0.0):
+def gen_green_cement(csg, rho_fluid_int=1.2, rho_cement=1.8, f_pre=0.0, p_test=0.0):
     """
     Run load case: Green Cement Pressure test
 
     Arguments:
         csg: casing obj
         rho_cement (num): cement density, sg
-        tvd_fluid_int (list or None): reference tvd of fluid change inside, m
-        rho_fluid_int (list or None): downwards sorted fluids densities inside, sg
+        rho_fluid_int (num): inside fluid density, sg
         f_pre (num): pre-loading force applied to the casing string if necessary, kN
         p_test (num): testing pressure, psi
 
@@ -88,18 +87,13 @@ def gen_green_cement(csg, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8
 
     from .load_cases import green_cement_pressure_test
 
-    if tvd_fluid_int is None:
-        tvd_fluid_int = []
-    if rho_fluid_int is None:
-        rho_fluid_int = [1.2]
-
     f_test = convert_unit(p_test * csg.area, unit_from="lbf", unit_to="kN")
     p_test = convert_unit(p_test, unit_from="psi", unit_to="bar")
     e = convert_unit(csg.e, unit_from='psi', unit_to='bar')
 
     axial_force, pressure_differential = green_cement_pressure_test(csg.trajectory, csg.nominal_weight,
-                                                                    csg.od, csg.id, rho_cement, tvd_fluid_int,
-                                                                    rho_fluid_int, p_test, e, f_test, f_pre)
+                                                                    csg.od, csg.id, rho_cement, rho_fluid_int,
+                                                                    p_test, e, f_test, f_pre)
 
     pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
 

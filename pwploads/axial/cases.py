@@ -106,8 +106,7 @@ def cementation(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_flui
     return force
 
 
-def green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int, rho_fluid_int, e,
-                 f_pre=0, f_h=0):
+def green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid_int, e, f_pre=0, f_h=0):
     """
     Calculate axial load during green cement pressure test
     :param trajectory: wellpath object
@@ -115,8 +114,7 @@ def green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_flu
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
     :param rho_cement: cement density, sg
-    :param tvd_fluid_int: list - reference tvd of fluid change inside, m
-    :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
+    :param rho_fluid_int: inside fluid density, sg
     :param e: pipe Young's modulus, bar
     :param f_pre: pre-loading force applied to the casing string if necessary, kN
     :param f_h: pressure testing force, kN
@@ -124,7 +122,7 @@ def green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_flu
     """
 
     f_w = air_weight(trajectory.tvd, nominal_weight)
-    f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, [], [rho_cement], tvd_fluid_int, rho_fluid_int)
+    f_bu = buoyancy_force(trajectory.tvd, od_csg, id_csg, [], [rho_cement], [], [rho_fluid_int])
     f_be = bending(od_csg, trajectory.dls, trajectory.dls_resolution, e)
 
     force = [x1 - x2 + f_h + f_pre + x3 for x1, x2, x3 in zip(f_w, f_bu, f_be)]

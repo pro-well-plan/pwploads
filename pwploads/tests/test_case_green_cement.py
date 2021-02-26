@@ -21,8 +21,7 @@ casing = pwploads.Casing(pipe, factors=df)
 trajectory = wp.get(2000, profile='J', build_angle=20, kop=800, eob=1300)
 casing.add_trajectory(trajectory)
 
-casing.green_cement(tvd_fluid_int=[300],    # fluid of 1.2 sg before reaching 300 m depth
-                    rho_fluid_int=[1.2, 1.5],
+casing.green_cement(rho_fluid_int=1.2,
                     rho_cement=1.8,
                     p_test=4472.65,
                     f_pre=0)

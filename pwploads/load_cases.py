@@ -54,8 +54,8 @@ def overpull(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, 
     return axial_force, pressure_differential
 
 
-def green_cement_pressure_test(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int, rho_fluid_int,
-                               p_test, e, f_h, f_pre=0):
+def green_cement_pressure_test(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid_int, p_test, e, f_h,
+                               f_pre=0):
     """
     Load case: Green Cement
     :param trajectory: wellpath object
@@ -63,8 +63,7 @@ def green_cement_pressure_test(trajectory, nominal_weight, od_csg, id_csg, rho_c
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
     :param rho_cement: cement density, sg
-    :param tvd_fluid_int: list - reference tvd of fluid change inside, m
-    :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
+    :param rho_fluid_int: inside fluid density, sg
     :param p_test: testing pressure, bar
     :param e: pipe Young's modulus, bar
     :param f_h: pressure testing force, kN
@@ -72,8 +71,8 @@ def green_cement_pressure_test(trajectory, nominal_weight, od_csg, id_csg, rho_c
     :return: total axial force profile [kN] and pressure difference [psi]
     """
 
-    axial_force = axial.green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
-                                     rho_fluid_int, e, f_pre, f_h)
+    axial_force = axial.green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid_int, e, f_pre,
+                                     f_h)
 
     pressure_differential = burst.pressure_test_onefluid(trajectory.tvd, p_test, rho_fluid_int, rho_cement)
 

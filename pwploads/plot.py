@@ -55,16 +55,11 @@ def create_plotly_figure(csg):
                              line={'color': 'black'}, name='API'))
 
     # Plotting connections limits
-    # for compression
-    fig.add_trace(go.Scatter(x=[csg.conn_limits[0] / 1000] * 2,
-                             y=[csg.limits['collapseDF'] / 1000, csg.limits['burstDF'] / 1000],
-                             line={'color': 'gray', 'dash': 'dash'}, name='Connection', mode='lines'))
-    # for tension
-    fig.add_trace(go.Scatter(x=[csg.conn_limits[1] / 1000] * 2,
-                             y=[csg.limits['burstDF'] / 1000,
+    fig.add_trace(go.Scatter(x=[csg.conn_limits[0] / 1000] * 2 + [None] + [csg.conn_limits[1] / 1000] * 2,
+                             y=[csg.limits['collapseDF'] / 1000, csg.limits['burstDF'] / 1000] + [None] +
+                               [csg.limits['burstDF'] / 1000,
                                 interp(csg.conn_limits[1], csg.collapse_curve[0], csg.collapse_curve[1]) / 1000],
                              line={'color': 'gray', 'dash': 'dash'}, name='Connection', mode='lines'))
-    fig['data'][-1]['showlegend'] = False       # Hide last label (otherwise it'd show twice 'Connection')
 
     # Plotting Loads
     for load in csg.loads:

@@ -101,8 +101,8 @@ class Casing(object):
     def overpull(self, tvd_fluid=None, rho_fluid=None, v_avg=0.3, fric=0.24, a=1.5, f_ov=0.0):
         gen_overpull(self, tvd_fluid, rho_fluid, v_avg, fric, a, f_ov)
 
-    def green_cement(self, tvd_fluid_int=None, rho_fluid_int=None, rho_cement=1.8, f_pre=0.0, p_test=0.0):
-        gen_green_cement(self, tvd_fluid_int, rho_fluid_int, rho_cement, f_pre, p_test)
+    def green_cement(self, rho_fluid_int=1.2, rho_cement=1.8, f_pre=0.0, p_test=0.0):
+        gen_green_cement(self, rho_fluid_int, rho_cement, f_pre, p_test)
 
     def cementing(self, rho_cement=1.8, rho_fluid=1.3, f_pre=0.0):
         gen_cementing(self, rho_cement, rho_fluid, f_pre)
@@ -157,7 +157,7 @@ class Casing(object):
         self.running(rho_fluid=[settings['densities']['mud']], v_avg=settings['tripping']['speed'],
                      fric=settings['tripping']['slidingFriction'], a=settings['tripping']['maxSpeedRatio'])
 
-        self.green_cement(rho_fluid_int=[settings['densities']['cementDisplacingFluid']],
+        self.green_cement(rho_fluid_int=settings['densities']['cementDisplacingFluid'],
                           rho_cement=settings['densities']['cement'], f_pre=settings['forces']['preloading'],
                           p_test=settings['testing']['cementingPressure'])
 
