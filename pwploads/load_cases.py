@@ -318,3 +318,23 @@ def pressure_test(trajectory, whp, od_csg, e, effective_diameter, rho_testing_fl
     pressure_differential = burst.pressure_test_onefluid(trajectory.tvd, whp, rho_testing_fluid, rho_mud)
 
     return axial_force, pressure_differential
+
+
+def mud_drop(trajectory, nominal_weight, od_csg, id_csg, rho_mud, rho_mud_new, e):
+    """
+    Load case: Displacement to gas
+    :param trajectory: wellpath object
+    :param nominal_weight: weight per unit length, kg/m
+    :param od_csg: pipe outer diameter, in
+    :param id_csg: pipe inner diameter, in
+    :param rho_mud: mud density, sg
+    :param rho_mud_new: new mud density, sg
+    :param e: pipe Young's modulus, bar
+    :return: total axial force profile [kN] and pressure difference [psi]
+    """
+
+    axial_force = axial.fluid_filled(trajectory, nominal_weight, od_csg, id_csg, rho_mud, rho_mud_new, e)
+
+    pressure_differential = collapse.fluid_filled(trajectory.tvd, rho_mud_new, rho_mud)
+
+    return axial_force, pressure_differential

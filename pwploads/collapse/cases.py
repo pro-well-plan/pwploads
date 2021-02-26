@@ -93,3 +93,23 @@ def injection_fulllevacuation(tvd, tvd_perf, rho_inj, p_inj, tvd_influencedzone,
     pressure_differential = p_int - p_ext
 
     return pressure_differential
+
+
+def fluid_filled(tvd, rho_mud_new, rho_mud):
+    """
+    Calculate differential pressure profile when the entire casing string is filled with gas.
+    :param tvd: list - true vertical depth, m
+    :param rho_mud_new: new mud density, sg
+    :param rho_mud: mud density, sg
+    :return: differential pressure profile, Pa
+    """
+
+    from .pressure_internal import inside_full
+    from .pressure_external import onefluid_behindcasing
+
+    p_int = inside_full(tvd, rho_mud_new)
+    p_ext = onefluid_behindcasing(tvd, rho_mud)
+
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
+
+    return pressure_differential

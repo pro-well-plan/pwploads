@@ -51,7 +51,6 @@ class Casing(object):
         self.toc_md = pipe['tocMd']
         self.shoe = pipe['shoeDepth']
         self.top = pipe['top']
-        self.pipe_class = pipe['casingClass']
 
         if 'casingClass' in pipe:
             self.pipe_class = pipe['casingClass']
@@ -134,6 +133,9 @@ class Casing(object):
     def gas_kick(self, p_res, tvd_res, rho_gas=0.5, rho_mud=1.4, vol_kick_initial=20):
         gen_gas_kick(self, p_res, tvd_res, rho_gas, rho_mud, vol_kick_initial)
 
+    def mud_drop(self, rho_mud=1.4, rho_mud_new=1.1):
+        gen_mud_drop(self, rho_mud, rho_mud_new)
+
     def add_trajectory(self, survey):
 
         trajectory = wp.load(survey, equidistant=False)
@@ -180,6 +182,8 @@ class Casing(object):
                              poisson=config['production']['poisson'],
                              f_setting=config['forces']['preloading'])
 
+        self.mud_drop(rho_mud=config['densities']['mud'], rho_mud_new=config['densities']['mudDropTo'])
+
         if 'Displacement to gas' not in self.msgs:
             self.displacement_gas(p_res=config['production']['resPressure'], tvd_res=config['production']['resTvd'],
                                   rho_gas=config['densities']['gasKick'], rho_mud=config['densities']['mud'])
@@ -219,8 +223,8 @@ class Casing(object):
 
     def define_settings(self, settings):
 
-        default = {'densities': {'mud': 1.2, 'cement': 1.8, 'cementDisplacingFluid': 1.3, 'gasKick': 0.5,
-                                 'completionFluid': 1.8, 'injectionFluid': 1.3},
+        default = {'densities': {'mud': 1.5, 'cement': 1.8, 'cementDisplacingFluid': 1.3, 'gasKick': 0.5,
+                                 'completionFluid': 1.8, 'injectionFluid': 1.3, 'mudDropTo': 1.1},
                    'tripping': {'slidingFriction': 0.24, 'speed': 0.3, 'maxSpeedRatio': 1.5},
                    'production': {'fluidDensity': 0.9, 'packerFluidDensity': 1.3, 'poisson': 0.3, 'wellHeadTemp': 5},
                    'forces': {'overpull': 0,

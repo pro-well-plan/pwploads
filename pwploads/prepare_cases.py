@@ -235,7 +235,7 @@ def gen_pressure_test(csg, whp, effective_diameter, rho_testing_fluid, rho_mud):
 
 def gen_gas_kick(csg, p_res, tvd_res, rho_gas=0.5, rho_mud=1.4, vol_kick_initial=0.05):
     """
-    Run load case: Displacement to gas
+    Run load case: Gas Kick
 
     Arguments:
         csg: casing obj
@@ -262,4 +262,32 @@ def gen_gas_kick(csg, p_res, tvd_res, rho_gas=0.5, rho_mud=1.4, vol_kick_initial
     axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
 
     csg.loads.append({'description': 'Gas kick', 'axialForce': axial_force,
+                      'diffPressure': pressure_differential})
+
+
+def gen_mud_drop(csg, rho_mud=1.4, rho_mud_new=1.1):
+    """
+    Run load case: Mud Drop
+
+    Arguments:
+        csg: casing obj
+        rho_mud (num): mud density, sg
+        rho_mud_new (num): new mud density, sg
+
+    Returns:
+        None. It adds the load case results in loads as [load case name, axial_force, pressure_differential]
+    """
+
+    from .load_cases import mud_drop
+
+    e = convert_unit(csg.e, unit_from='psi', unit_to='bar')
+
+    axial_force, pressure_differential = mud_drop(csg.trajectory, csg.nominal_weight, csg.od, csg.id, rho_mud,
+                                                  rho_mud_new, e)
+
+    pressure_differential = convert_unit(pressure_differential, unit_from="Pa", unit_to="psi")
+
+    axial_force = [x * 1000 / 4.448 for x in axial_force]  # kN to lbf
+
+    csg.loads.append({'description': 'Mud Drop', 'axialForce': axial_force,
                       'diffPressure': pressure_differential})
