@@ -42,7 +42,7 @@ def drilling_influx_2(tvd, rho_mud, tvd_next_section, fraction=0.5):
     return pressure_differential
 
 
-def drilling_influx_3(tvd, rho_mud, id_csg, od_dp, tvd_kick, kick_intensity, rho_kick_initial, vol_kick_initial):
+def drilling_influx_3(tvd, rho_mud, id_csg, od_dp, p_res, tvd_res, vol_kick_initial):
     """
     Calculate differential pressure profile with influx during drilling case 3 (gas kick profile -
     one fluid behind the casing)
@@ -50,9 +50,8 @@ def drilling_influx_3(tvd, rho_mud, id_csg, od_dp, tvd_kick, kick_intensity, rho
     :param rho_mud: mud density, sg
     :param id_csg: casing inner diameter, in
     :param od_dp: drill pipe outer diameter, in
-    :param tvd_kick: tvd of influx, m
-    :param kick_intensity: required increase in mud density to control the kick, sg
-    :param rho_kick_initial: influx initial density, sg
+    :param p_res: reservoir pressure, bar
+    :param tvd_res: tvd at reservoir, m
     :param vol_kick_initial: influx initial volume, m3
     :return: differential pressure profile, Pa
     """
@@ -60,21 +59,20 @@ def drilling_influx_3(tvd, rho_mud, id_csg, od_dp, tvd_kick, kick_intensity, rho
     from .pressure_internal import gas_kick
     from .pressure_external import onefluid_behindcasing
 
-    p_int = gas_kick(tvd, rho_mud, kick_intensity, tvd_kick, vol_kick_initial, rho_kick_initial, id_csg, od_dp)
+    p_int = gas_kick(tvd, rho_mud, p_res, tvd_res, vol_kick_initial, id_csg, od_dp)
     p_ext = onefluid_behindcasing(tvd, rho_mud)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 
 
-def pressure_test_onefluid(tvd, p_test, rho_fluid_int, tvd_fluid_int, rho_fluid_ext):
+def pressure_test_onefluid(tvd, p_test, rho_fluid_int, rho_fluid_ext):
     """
     Calculate differential pressure profile during pressure testing with one fluid behind the casing.
     :param tvd: list - true vertical depth, m
     :param p_test: testing pressure, bar
-    :param rho_fluid_int: list - downwards sorted internal fluid densities, sg
-    :param tvd_fluid_int: list - reference tvd of internal fluid change, m
+    :param rho_fluid_int: float - internal fluid density, sg
     :param rho_fluid_ext: float - external fluid density, sg
     :return: differential pressure profile, Pa
     """
@@ -82,7 +80,7 @@ def pressure_test_onefluid(tvd, p_test, rho_fluid_int, tvd_fluid_int, rho_fluid_
     from .pressure_internal import pressure_test
     from .pressure_external import onefluid_behindcasing
 
-    p_int = pressure_test(tvd, p_test, rho_fluid_int, tvd_fluid_int)
+    p_int = pressure_test(tvd, p_test, rho_fluid_int)
     p_ext = onefluid_behindcasing(tvd, rho_fluid_ext)
 
     pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
@@ -90,13 +88,12 @@ def pressure_test_onefluid(tvd, p_test, rho_fluid_int, tvd_fluid_int, rho_fluid_
     return pressure_differential
 
 
-def pressure_test_morefluids(tvd, p_test, rho_mud, tvd_mud, rho_fluid, tvd_fluid):
+def pressure_test_morefluids(tvd, p_test, rho_mud, rho_fluid, tvd_fluid):
     """
     Calculate differential pressure profile during pressure testing with more than one fluid behind the casing.
     :param tvd: list - true vertical depth, m
     :param p_test: testing pressure, bar
     :param rho_mud: list - downwards sorted mud densities, sg
-    :param tvd_mud: list - reference tvd of mud change, m
     :param rho_fluid: list - downwards sorted fluids densities, sg
     :param tvd_fluid: list - reference tvd of fluid change, m
     :return: differential pressure profile, Pa
@@ -105,7 +102,7 @@ def pressure_test_morefluids(tvd, p_test, rho_mud, tvd_mud, rho_fluid, tvd_fluid
     from .pressure_internal import pressure_test
     from .pressure_external import morefluids_behindcasing
 
-    p_int = pressure_test(tvd, p_test, rho_mud, tvd_mud)
+    p_int = pressure_test(tvd, p_test, rho_mud)
     p_ext = morefluids_behindcasing(tvd, rho_fluid, tvd_fluid)
 
     pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
@@ -216,7 +213,7 @@ def stimulation(tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid, tvd_pack
     :param tvd: list - true vertical depth, m
     :param whp: wellhead pressure, bar
     :param rho_injectionfluid: injection fluid density, sg
-    :param rho_mud:
+    :param rho_mud: mud density, sg
     :param rho_packerfluid: packer fluid density, sg
     :param tvd_packer: tvd at packer, m
     :return: differential pressure profile, Pa
@@ -228,7 +225,7 @@ def stimulation(tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid, tvd_pack
     p_int = tubing_leak_stimulation(tvd, whp, rho_packerfluid, rho_injectionfluid, tvd_packer)
     p_ext = onefluid_behindcasing(tvd, rho_mud)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 

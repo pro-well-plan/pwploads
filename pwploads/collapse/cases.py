@@ -65,7 +65,7 @@ def production_fullevacuation(tvd, rho_mud):
     p_int = full_evacuation(tvd)
     p_ext = onefluid_behindcasing(tvd, rho_mud)
 
-    pressure_differential = p_int - p_ext
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential
 
@@ -91,5 +91,25 @@ def injection_fulllevacuation(tvd, tvd_perf, rho_inj, p_inj, tvd_influencedzone,
     p_ext = injection(tvd, tvd_perf, p_inj, rho_inj, tvd_influencedzone, rho_fluid, p_fric, rho_form)
 
     pressure_differential = p_int - p_ext
+
+    return pressure_differential
+
+
+def fluid_filled(tvd, rho_mud_new, rho_mud):
+    """
+    Calculate differential pressure profile when the entire casing string is filled with gas.
+    :param tvd: list - true vertical depth, m
+    :param rho_mud_new: new mud density, sg
+    :param rho_mud: mud density, sg
+    :return: differential pressure profile, Pa
+    """
+
+    from .pressure_internal import inside_full
+    from .pressure_external import onefluid_behindcasing
+
+    p_int = inside_full(tvd, rho_mud_new)
+    p_ext = onefluid_behindcasing(tvd, rho_mud)
+
+    pressure_differential = [x - y for x, y in zip(p_int, p_ext)]
 
     return pressure_differential

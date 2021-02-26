@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 setup(
     name='pwploads',
     packages=['pwploads', 'pwploads.axial', 'pwploads.burst', 'pwploads.collapse'],
-    version='0.3.0',
+    version='0.4.0b1',
     license='LGPL v3',
     description='Load Cases for Well Design',
     long_description=long_description,
@@ -21,5 +21,5 @@ setup(
                  'Topic :: Software Development',
                  'Topic :: Software Development :: Libraries',
                  'Topic :: Utilities'],
-    install_requires=['numpy', 'matplotlib', 'plotly', 'torque_drag']
+    install_requires=['numpy', 'matplotlib', 'plotly', 'torque_drag', 'well_profile']
 )

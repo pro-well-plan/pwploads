@@ -127,18 +127,22 @@ def pickup_force(tvd, od_csg, id_csg, tvd_toc, t_k, t_o, e, alpha):
     return f_pu
 
 
-def thermal_load(od_csg, id_csg, t_k, t_o, alpha, e):
+def thermal_load(trajectory, od_csg, id_csg, t_w, temp, alpha, e):
     """
     Calculate axial force fue to thermal effect
+    :param trajectory: wellpath object
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
-    :param t_k: max. wellhead temperature during production, °C
-    :param t_o: mean ambient temperature, °C
+    :param t_w: max. wellhead temperature, °C
+    :param temp: dict with temp values (°C) at seabed and a target
     :param alpha: thermal expansion coefficient, 1/°C
     :param e: pipe Young's modulus, bar
     :return: axial force profile, kN
     """
 
+    gradient = (temp['target']['temp'] - temp['seabed']['temp']) / (temp['target']['tvd'] - temp['seabed']['tvd'])
+    t_o = [temp['seabed']['temp'] + gradient * (tvd - temp['seabed']['tvd']) for tvd in trajectory.tvd]
+    t_k = [t_w + gradient * (tvd - temp['seabed']['tvd']) for tvd in trajectory.tvd]
     delta_t = [x - y for x, y in zip(t_k, t_o)]
     area = (pi / 4) * (od_csg ** 2 - id_csg * 2)
     area = convert_unit(area, unit_from="in2", unit_to="m2")

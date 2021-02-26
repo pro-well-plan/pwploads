@@ -54,18 +54,16 @@ def overpull(trajectory, nominal_weight, od_csg, id_csg, shoe_depth, tvd_fluid, 
     return axial_force, pressure_differential
 
 
-def green_cement_pressure_test(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
-                               rho_fluid_int, p_test, e, f_h, f_pre=0):
+def green_cement_pressure_test(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid_int, p_test, e, f_h,
+                               f_pre=0):
     """
     Load case: Green Cement
     :param trajectory: wellpath object
-    :param tvd: list - true vertical depth, m
     :param nominal_weight: weight per unit length, kg/m
     :param od_csg: pipe outer diameter, in
     :param id_csg: pipe inner diameter, in
     :param rho_cement: cement density, sg
-    :param tvd_fluid_int: list - reference tvd of fluid change inside, m
-    :param rho_fluid_int: list - downwards sorted fluids densities inside, sg
+    :param rho_fluid_int: inside fluid density, sg
     :param p_test: testing pressure, bar
     :param e: pipe Young's modulus, bar
     :param f_h: pressure testing force, kN
@@ -73,10 +71,10 @@ def green_cement_pressure_test(trajectory, tvd, nominal_weight, od_csg, id_csg, 
     :return: total axial force profile [kN] and pressure difference [psi]
     """
 
-    axial_force = axial.green_cement(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, tvd_fluid_int,
-                                     rho_fluid_int, e, f_pre, f_h)
+    axial_force = axial.green_cement(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid_int, e, f_pre,
+                                     f_h)
 
-    pressure_differential = burst.pressure_test_onefluid(tvd, p_test, rho_fluid_int, tvd_fluid_int, rho_cement)
+    pressure_differential = burst.pressure_test_onefluid(trajectory.tvd, p_test, rho_fluid_int, rho_cement)
 
     return axial_force, pressure_differential
 
@@ -95,10 +93,9 @@ def cementing(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid,
     :return: total axial force profile [kN] and pressure difference [psi]
     """
 
-    tvd = trajectory.tvd
-    axial_force = axial.cementation(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid, e, f_pre)
+    axial_force = axial.cementation(trajectory, nominal_weight, od_csg, id_csg, rho_cement, rho_fluid, e, f_pre)
 
-    pressure_differential = collapse.plug_cementation_onefluid_behindcasing(tvd, rho_fluid, rho_cement)
+    pressure_differential = collapse.plug_cementation_onefluid_behindcasing(trajectory.tvd, rho_fluid, rho_cement)
 
     return axial_force, pressure_differential
 
@@ -118,10 +115,34 @@ def gas_filled(trajectory, nominal_weight, od_csg, id_csg, rho_mud, rho_gas, p_r
     :return: total axial force profile [kN] and pressure difference [psi]
     """
 
-    tvd = trajectory.tvd
-    axial_force = axial.fluid_filled(trajectory, tvd, nominal_weight, od_csg, id_csg, rho_mud, rho_gas, e)
+    axial_force = axial.fluid_filled(trajectory, nominal_weight, od_csg, id_csg, rho_mud, rho_gas, e)
 
-    pressure_differential = burst.gas_filled(tvd, p_res, rho_gas, tvd_res, rho_mud)
+    pressure_differential = burst.gas_filled(trajectory.tvd, p_res, rho_gas, tvd_res, rho_mud)
+
+    return axial_force, pressure_differential
+
+
+def gas_kick(trajectory, nominal_weight, od_csg, id_csg, rho_mud, rho_gas, p_res, tvd_res, e, vol_kick_initial):
+    """
+    Load case: Displacement to gas
+    :param trajectory: wellpath object
+    :param nominal_weight: weight per unit length, kg/m
+    :param od_csg: pipe outer diameter, in
+    :param id_csg: pipe inner diameter, in
+    :param rho_mud: mud density, sg
+    :param rho_gas: gas density, sg
+    :param p_res: reservoir pressure, bar
+    :param tvd_res: tvd at reservoir, m
+    :param e: pipe Young's modulus, bar
+    :param vol_kick_initial: influx initial volume, m3
+    :return: total axial force profile [kN] and pressure difference [psi]
+    """
+
+    axial_force = axial.fluid_filled(trajectory, nominal_weight, od_csg, id_csg, rho_mud, rho_gas, e)
+
+    od_dp = 5
+    pressure_differential = burst.drilling_influx_3(trajectory.tvd, rho_mud, id_csg, od_dp, p_res, tvd_res,
+                                                    vol_kick_initial)
 
     return axial_force, pressure_differential
 
@@ -134,6 +155,29 @@ def production_with_packer(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rh
 
     pressure_differential = burst.production_with_packer(trajectory.tvd, rho_fluid_int, rho_fluid_ext, p_res, tvd_perf,
                                                          rho_packerfluid, tvd_packer)
+
+    return axial_force, pressure_differential
+
+
+def production_evacuation(trajectory, od_csg, id_csg, md_toc, rho_fluid_int, rho_mud, e, poisson=0.3,
+                          f_setting=0):
+
+    axial_force = axial.production(trajectory, md_toc, od_csg, id_csg, rho_fluid_int, rho_mud, e, poisson,
+                                   f_setting)
+
+    pressure_differential = collapse.production_fullevacuation(trajectory.tvd, rho_mud)
+
+    return axial_force, pressure_differential
+
+
+def stimulation(trajectory, md_toc, od_csg, id_csg, e, whp, rho_injectionfluid, rho_mud, rho_packerfluid, temp, t_k,
+                alpha=17e-6, poisson=0.3, f_setting=0):
+
+    axial_force = axial.injection(trajectory, md_toc, od_csg, id_csg, rho_injectionfluid, rho_mud, e, t_k, temp, alpha,
+                                  poisson, f_setting)
+
+    pressure_differential = burst.stimulation(trajectory.tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid,
+                                              tvd_packer=0)
 
     return axial_force, pressure_differential
 
@@ -172,17 +216,6 @@ def production_without_packer_depleted_zone(md, md_toc, od_csg, id_csg, delta_rh
 
     pressure_differential = burst.production_without_packer_and_depletedzone(tvd, p_res, rho_gas, tvd_res, tvd_zone,
                                                                              p_zone, rho_mud)
-
-    return axial_force, pressure_differential
-
-
-def stimulation(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k, t_o, alpha, tvd,
-                whp, rho_injectionfluid, rho_mud, rho_packerfluid, poisson=0.3, f_setting=0, tvd_packer=0):
-
-    axial_force = axial.injection(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k,
-                                  t_o, alpha, poisson, f_setting)
-
-    pressure_differential = burst.stimulation(tvd, whp, rho_injectionfluid, rho_mud, rho_packerfluid, tvd_packer)
 
     return axial_force, pressure_differential
 
@@ -257,17 +290,6 @@ def drill_stem_test(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, del
     return axial_force, pressure_differential
 
 
-def production_evacuation(tvd, rho_mud, md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
-                          poisson=0.3, f_setting=0):
-
-    axial_force = axial.production(md, md_toc, od_csg, id_csg, delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a,
-                                   poisson, f_setting)
-
-    pressure_differential = collapse.production_fullevacuation(tvd, rho_mud)
-
-    return axial_force, pressure_differential
-
-
 def injection_evacuation(tvd, tvd_perf, rho_inj, p_inj, tvd_influencedzone, rho_fluid, p_fric, rho_form, evacuation,
                          p_zone, rho_fluid_before_cementation, rho_fluid_above_packer, md, md_toc, od_csg, id_csg,
                          delta_rho_i, delta_rho_a, e, delta_p_i, delta_p_a, t_k, t_o, alpha, poisson=0.3, f_setting=0):
@@ -285,5 +307,34 @@ def injection_evacuation(tvd, tvd_perf, rho_inj, p_inj, tvd_influencedzone, rho_
         pressure_differential = collapse.injection_partialevacuation(tvd, tvd_perf, rho_inj, p_inj, p_zone,
                                                                      tvd_influencedzone, rho_fluid_before_cementation,
                                                                      p_fric, rho_form, rho_fluid_above_packer)
+
+    return axial_force, pressure_differential
+
+
+def pressure_test(trajectory, whp, od_csg, e, effective_diameter, rho_testing_fluid, rho_mud):
+
+    axial_force = axial.pressure_test(trajectory, whp, effective_diameter, od_csg, e)
+
+    pressure_differential = burst.pressure_test_onefluid(trajectory.tvd, whp, rho_testing_fluid, rho_mud)
+
+    return axial_force, pressure_differential
+
+
+def mud_drop(trajectory, nominal_weight, od_csg, id_csg, rho_mud, rho_mud_new, e):
+    """
+    Load case: Displacement to gas
+    :param trajectory: wellpath object
+    :param nominal_weight: weight per unit length, kg/m
+    :param od_csg: pipe outer diameter, in
+    :param id_csg: pipe inner diameter, in
+    :param rho_mud: mud density, sg
+    :param rho_mud_new: new mud density, sg
+    :param e: pipe Young's modulus, bar
+    :return: total axial force profile [kN] and pressure difference [psi]
+    """
+
+    axial_force = axial.fluid_filled(trajectory, nominal_weight, od_csg, id_csg, rho_mud, rho_mud_new, e)
+
+    pressure_differential = collapse.fluid_filled(trajectory.tvd, rho_mud_new, rho_mud)
 
     return axial_force, pressure_differential
