@@ -15,7 +15,7 @@ def default_casing_with_trajectory():
           'connection': {'tension': 1.0, 'compression': 1.0}}
 
     casing = pwploads.Casing(pipe, factors=df)
-    casing.add_trajectory('TrajectorySample.xlsx')
+    casing.add_trajectory(r'https://github.com/pro-well-plan/pwploads/raw/master/pwploads/tests/TrajectorySample.xlsx')
 
     return casing, pipe
 

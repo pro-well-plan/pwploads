@@ -14,7 +14,7 @@ df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1
       'connection': {'tension': 1.0, 'compression': 1.0}}
 
 casing = pwploads.Casing(pipe, factors=df)
-casing.add_trajectory('TrajectorySample.xlsx')
+casing.add_trajectory(r'https://github.com/pro-well-plan/pwploads/raw/master/pwploads/tests/TrajectorySample.xlsx')
 
 settings = {'densities': {'mud': 1.7,
                           'cement': 1.8,
