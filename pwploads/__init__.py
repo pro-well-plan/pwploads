@@ -14,8 +14,8 @@ class Casing(object):
     Casing object.
 
     Arguments:
-        pipe (dict): set the main pipe characteristics. 'od', 'id', 'shoeDepth', 'tocMd', 'weight'(opt), 'yield'(opt),
-                     'e'(opt)
+        pipe (dict): set the main pipe characteristics. 'od', 'id', 'shoeDepth', 'tocMd',  'top', 'casingClass',
+                     'weight'(opt), 'yield'(opt), 'e'(opt)
         factors (dict): set define factors for pipe and connection.
 
     Attributes:
@@ -51,6 +51,12 @@ class Casing(object):
         self.toc_md = pipe['tocMd']
         self.shoe = pipe['shoeDepth']
         self.top = pipe['top']
+        self.pipe_class = pipe['casingClass']
+
+        if 'casingClass' in pipe:
+            self.pipe_class = pipe['casingClass']
+        else:
+            self.pipe_class = None
 
         if 'yield' in pipe:
             yield_s = pipe['yield']
