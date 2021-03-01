@@ -7,7 +7,7 @@ pipe = {'od': 8,
         'shoeDepth': 1500,
         'tocMd': 1000,
         'weight': 100,
-        'yield': 80000,
+        'grade': 'X-80',
         'e': 29e6,
         'top': 500}
 df = {'pipe': {'tension': 1.1, 'compression': 1.1, 'burst': 1.1, 'collapse': 1.1, 'triaxial': 1.25},

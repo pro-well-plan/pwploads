@@ -2,13 +2,13 @@ from unittest import TestCase
 import pwploads
 
 
-def default_casing(yield_s):
+def default_casing(grade):
     pipe = {'od': 8,
             'id': 7.2,
             'shoeDepth': 1500,
             'tocMd': 1000,
             'weight': 100,
-            'yield': yield_s,
+            'grade': grade,
             'e': 29e6,
             'top': 500}
     df = {'pipe': {'tension': 1, 'compression': 1, 'burst': 1, 'collapse': 1, 'triaxial': 1},
@@ -21,8 +21,7 @@ def default_casing(yield_s):
 
 class TestCasing(TestCase):
     def test_different_yield(self):
-        for yield_s in [45000, 50000, 60000, 80000, 100000, 120000]:
+        for yield_s in ['X-45', 'X-50', 'X-60', 'X-80', 'X-100', 'X-120']:
             pipe = default_casing(yield_s)
             fig = pipe.plot()
             # fig.show()
-
