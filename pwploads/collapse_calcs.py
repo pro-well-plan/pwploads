@@ -19,7 +19,7 @@ def calc_collapse_pressure(dt, yield_strength, axial_stress=None):
         dt_pt = y_p * (a - f) / (c + y_p * (b - g))
         dt_te = (2 + b / a) / (3 * b / a)
 
-        if dt <= dt_yp:
+        if dt <= dt_yp or dt_yp < 0:
             collapse_range = 'yield'
         elif dt_yp < dt < dt_pt:
             collapse_range = 'plastic'
