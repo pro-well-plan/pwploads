@@ -45,7 +45,7 @@ settings = {'densities': {'mud': 1.7,
 casing.run_loads(settings)
 
 
-class TestCasing(TestCase):
+class TestLoadCases(TestCase):
     def test_run_loads(self):
         cases = ['Overpull', 'Running', 'Green Cement Pressure Test', 'Cementing', 'Full Evacuation', 'Mud Drop',
                  'Displacement to gas', 'Production', 'Injection', 'Pressure Test', 'Gas kick']

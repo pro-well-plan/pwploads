@@ -20,7 +20,7 @@ def default_casing_with_trajectory():
     return casing, pipe
 
 
-class TestCasing(TestCase):
+class TestTrajectory(TestCase):
     def test_add_trajectory(self):
 
         casing, pipe = default_casing_with_trajectory()

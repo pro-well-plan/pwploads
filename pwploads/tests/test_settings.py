@@ -17,7 +17,7 @@ def default_casing_with_trajectory():
     return casing
 
 
-class TestCasing(TestCase):
+class TestSettings(TestCase):
     def test_settings_none(self):
         casing = default_casing_with_trajectory()
         casing.run_loads(settings=None)
