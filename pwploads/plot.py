@@ -54,3 +54,63 @@ def pressure_plot(csg):
     fig.update_yaxes(autorange="reversed")
 
     return fig
+
+
+def burst_plot(csg):
+    fig = go.Figure()
+
+    # Plotting Loads
+    for load in csg.loads:
+        sf = []
+        for x in load['diffPressure']:
+            if x > 0:
+                sf.append(csg.limits['burst']/x)
+                if sf[-1] > 10:
+                    sf[-1] = 10
+            else:
+                sf.append(10)
+        fig.add_trace(go.Scatter(x=sf,
+                                 y=csg.trajectory.tvd,
+                                 name=load['description']))
+
+    # Add Burst SF Limit
+    fig.add_trace(go.Scatter(x=[csg.limits['burst']/csg.limits['burstDF']] * len(csg.trajectory.tvd),
+                             y=csg.trajectory.tvd,
+                             name='Burst SF ' + str(csg.design_factor['api']['burst'])))
+
+    fig.update_layout(
+        yaxis_title='Depth, m',
+        xaxis_title='Burst Safety Factor')
+    fig.update_yaxes(autorange="reversed")
+
+    return fig
+
+
+def collapse_plot(csg):
+    fig = go.Figure()
+
+    # Plotting Loads
+    for load in csg.loads:
+        sf = []
+        for x in load['diffPressure']:
+            if x < 0:
+                sf.append(csg.limits['collapse']/x)
+                if sf[-1] > 10:
+                    sf[-1] = 10
+            else:
+                sf.append(10)
+        fig.add_trace(go.Scatter(x=sf,
+                                 y=csg.trajectory.tvd,
+                                 name=load['description']))
+
+    # Add Collapse SF Limit
+    fig.add_trace(go.Scatter(x=[csg.limits['collapse']/csg.limits['collapseDF']] * len(csg.trajectory.tvd),
+                             y=csg.trajectory.tvd,
+                             name='Collapse SF ' + str(csg.design_factor['api']['collapse'])))
+
+    fig.update_layout(
+        yaxis_title='Depth, m',
+        xaxis_title='Collapse Safety Factor')
+    fig.update_yaxes(autorange="reversed")
+
+    return fig

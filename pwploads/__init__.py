@@ -116,6 +116,8 @@ class Casing(object):
     def plot(self, plot_type='vme'):
         if plot_type == 'pressureDiff':
             fig = pressure_plot(self)
+        elif plot_type == 'burst':
+            fig = burst_plot(self)
         else:
             fig = vme_plot(self)
 
