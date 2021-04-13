@@ -120,6 +120,8 @@ class Casing(object):
             fig = burst_plot(self)
         elif plot_type == 'collapse':
             fig = collapse_plot(self)
+        elif plot_type == 'axial':
+            fig = axial_plot(self)
         else:
             fig = vme_plot(self)
 
