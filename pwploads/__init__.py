@@ -118,6 +118,8 @@ class Casing(object):
             fig = pressure_plot(self)
         elif plot_type == 'burst':
             fig = burst_plot(self)
+        elif plot_type == 'collapse':
+            fig = collapse_plot(self)
         else:
             fig = vme_plot(self)
 
