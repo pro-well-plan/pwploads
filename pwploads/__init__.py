@@ -6,6 +6,7 @@ from .design_factors import api_limits
 from .connections import get_conn_limits
 from .utilities import *
 from .prepare_cases import *
+from .plot import *
 import well_profile as wp
 
 
@@ -105,22 +106,21 @@ class Casing(object):
 
         trajectory = wp.load(survey, equidistant=False)
         idx = [trajectory.trajectory.index(x) for x in trajectory.trajectory if self.top <= x['md'] <= self.shoe]
-        trajectory.md = [x['md'] - self.top for x in trajectory.trajectory][idx[0]:idx[-1]+1]
-        trajectory.tvd = [x['tvd'] - self.top for x in trajectory.trajectory][idx[0]:idx[-1]+1]
-        trajectory.inclination = [x['inc'] for x in trajectory.trajectory][idx[0]:idx[-1]+1]
-        trajectory.azimuth = [x['azi'] for x in trajectory.trajectory][idx[0]:idx[-1]+1]
-        trajectory.dls = [x['dls'] for x in trajectory.trajectory][idx[0]:idx[-1]+1]
+        trajectory.md = [x['md'] - self.top for x in trajectory.trajectory][idx[0]:idx[-1] + 1]
+        trajectory.tvd = [x['tvd'] - self.top for x in trajectory.trajectory][idx[0]:idx[-1] + 1]
+        trajectory.inclination = [x['inc'] for x in trajectory.trajectory][idx[0]:idx[-1] + 1]
+        trajectory.azimuth = [x['azi'] for x in trajectory.trajectory][idx[0]:idx[-1] + 1]
+        trajectory.dls = [x['dls'] for x in trajectory.trajectory][idx[0]:idx[-1] + 1]
         self.trajectory = trajectory
 
-    def plot(self, plot_type='plotly'):
-        from .plot import create_plotly_figure, create_pyplot_figure
-        if plot_type == 'plotly':
-            fig = create_plotly_figure(self)
+    def plot(self, plot_type='vme'):
+        if plot_type == 'pressureDiff':
+            fig = pressure_plot(self)
         else:
-            fig = create_pyplot_figure(self)
+            fig = vme_plot(self)
 
         return fig
-    
+
     def run_loads(self, settings=None):
 
         self.define_settings(settings)
