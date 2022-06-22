@@ -1,4 +1,4 @@
-numpy==1.20.2
+numpy==1.22.0
 plotly==4.14.3
 torque_drag==0.0.8
 well_profile==0.5.1
